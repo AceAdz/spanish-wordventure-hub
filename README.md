@@ -113,12 +113,6 @@ Don't worry if you're new to this - everyone starts somewhere! 🌱
 
 ---
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 <div align="center">
 
 ### ⭐ Star this repo if you found it helpful!
