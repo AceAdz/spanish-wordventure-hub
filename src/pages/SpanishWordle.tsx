@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, BookOpen, Star, X } from "lucide-react";
+import { ArrowLeft, RotateCcw, BookOpen, X } from "lucide-react";
 import { SPANISH_WORDS } from "@/data/spanishWords";
 
 type LetterState = "correct" | "present" | "absent" | "empty" | "tbd";
@@ -188,21 +188,6 @@ export default function SpanishWordle() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* GitHub Star Banner */}
-      <div className="bg-primary/10 border-b border-primary/20 px-4 py-2">
-        <div className="max-w-lg mx-auto flex items-center justify-center gap-2">
-          <Star className="h-4 w-4 text-primary" />
-          <a
-            href="https://github.com/AceAdz/spanish-wordventure-hub"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            ⭐ Star us on GitHub
-          </a>
-        </div>
-      </div>
-
       {/* Header */}
       <header className="border-b border-border/50 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
