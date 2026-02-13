@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Flame, Zap, BookOpen, Trophy } from "lucide-react";
+import { Flame, Zap, BookOpen, Trophy, Star } from "lucide-react";
 
 const games = [
   {
@@ -26,6 +26,22 @@ const games = [
 const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* GitHub Star Banner */}
+      <div className="bg-[hsl(270,60%,50%)] px-4 py-2.5">
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2">
+          <Star className="h-4 w-4 text-white fill-white" />
+          <a
+            href="https://github.com/AceAdz/spanish-wordventure-hub"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-bold text-white hover:text-white/80 transition-colors"
+          >
+            Star us on GitHub
+          </a>
+          <Star className="h-4 w-4 text-white fill-white" />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="border-b border-border/50 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
