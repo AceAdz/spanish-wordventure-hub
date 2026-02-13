@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, BookOpen, Star, X } from "lucide-react";
 import { SPANISH_WORDS } from "@/data/spanishWords";
 
 type LetterState = "correct" | "present" | "absent" | "empty" | "tbd";
@@ -82,6 +82,7 @@ export default function SpanishWordle() {
   const [revealingRow, setRevealingRow] = useState(-1);
   const [keyStates, setKeyStates] = useState<Record<string, LetterState>>({});
   const [stats, setStats] = useState({ streak: 0, wins: 0, played: 0 });
+  const [showDictionary, setShowDictionary] = useState(false);
 
   const submitGuess = useCallback(() => {
     if (currentGuess.length !== WORD_LENGTH || gameOver) return;
@@ -187,6 +188,21 @@ export default function SpanishWordle() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* GitHub Star Banner */}
+      <div className="bg-primary/10 border-b border-primary/20 px-4 py-2">
+        <div className="max-w-lg mx-auto flex items-center justify-center gap-2">
+          <Star className="h-4 w-4 text-primary" />
+          <a
+            href="https://github.com/AceAdz/spanish-wordventure-hub"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            ⭐ Star us on GitHub
+          </a>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="border-b border-border/50 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -195,11 +211,48 @@ export default function SpanishWordle() {
             <span className="text-sm">Hub</span>
           </Link>
           <h1 className="font-display font-bold text-lg text-foreground">🇪🇸 Spanish Wordle</h1>
-          <button onClick={newGame} className="text-muted-foreground hover:text-foreground transition-colors">
-            <RotateCcw className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowDictionary(!showDictionary)} className="text-muted-foreground hover:text-foreground transition-colors">
+              <BookOpen className="h-5 w-5" />
+            </button>
+            <button onClick={newGame} className="text-muted-foreground hover:text-foreground transition-colors">
+              <RotateCcw className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Dictionary Panel */}
+      <AnimatePresence>
+        {showDictionary && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden border-b border-border/50"
+          >
+            <div className="max-w-lg mx-auto px-4 py-3">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" /> Word Dictionary
+                </h2>
+                <button onClick={() => setShowDictionary(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="max-h-48 overflow-y-auto scrollbar-thin space-y-1">
+                {FIVE_LETTER_WORDS.map((w, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded-md bg-card/50 text-sm">
+                    <span className="font-display font-bold text-foreground tracking-wide">{w.word}</span>
+                    <span className="text-muted-foreground italic">{w.english}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 flex flex-col items-center justify-between py-4 px-4 max-w-lg mx-auto w-full">
         {/* Stats bar */}
