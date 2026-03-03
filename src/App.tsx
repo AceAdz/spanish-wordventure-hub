@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SpanishWordle from "./pages/SpanishWordle";
-import VerbRunner from "./pages/VerbRunner";
+import VerbMatch from "./pages/VerbMatch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,7 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/wordle" element={<SpanishWordle />} />
-          <Route path="/verb-runner" element={<VerbRunner />} />
+          <Route path="/verb-match" element={<VerbMatch />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
