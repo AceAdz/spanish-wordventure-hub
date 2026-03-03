@@ -13,12 +13,12 @@ const games = [
     stats: "56+ words",
   },
   {
-    title: "Verb Runner",
-    description: "Conjugate falling verbs before time runs out. How long can you survive?",
+    title: "Verb Match",
+    description: "Pick the correct conjugation from four choices. Test your verb knowledge!",
     icon: Zap,
-    path: "/verb-runner",
+    path: "/verb-match",
     gradient: "from-secondary to-accent",
-    emoji: "🏃",
+    emoji: "🎯",
     stats: "50+ verbs",
   },
 ];
