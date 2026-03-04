@@ -57,6 +57,7 @@ export default function VerbMatch() {
         setScore((s) => s + 10 + streak * 2);
         setStreak(newStreak);
         setBestStreak((b) => Math.max(b, newStreak));
+        setCorrectCount((c) => c + 1);
       } else {
         setStreak(0);
       }
