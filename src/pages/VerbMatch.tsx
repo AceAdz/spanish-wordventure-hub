@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, Trophy, CheckCircle, XCircle } from "lucide-react";
 import { VERB_CHALLENGES, VerbChallenge } from "@/data/spanishWords";
+import { useGameScore } from "@/hooks/useGameScore";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -37,6 +38,9 @@ export default function VerbMatch() {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [finished, setFinished] = useState(false);
   const [answered, setAnswered] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const { saveScore } = useGameScore();
+  const savedRef = useRef(false);
 
   const current = challenges[currentIdx];
 
@@ -53,6 +57,7 @@ export default function VerbMatch() {
         setScore((s) => s + 10 + streak * 2);
         setStreak(newStreak);
         setBestStreak((b) => Math.max(b, newStreak));
+        setCorrectCount((c) => c + 1);
       } else {
         setStreak(0);
       }
@@ -72,10 +77,16 @@ export default function VerbMatch() {
     [selected, current, streak, currentIdx, challenges]
   );
 
+  // Save score when game finishes
+  useEffect(() => {
+    if (finished && !savedRef.current) {
+      savedRef.current = true;
+      const accuracy = answered > 0 ? correctCount / answered : 0;
+      saveScore("verb_match", score, accuracy, bestStreak);
+    }
+  }, [finished, score, answered, correctCount, bestStreak, saveScore]);
+
   const restart = () => {
-    const newChallenges = getShuffledChallenges();
-    // We can't setState on challenges since it's from useState initializer,
-    // so we reload by remounting
     window.location.reload();
   };
 

@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, BookOpen, X } from "lucide-react";
 import { SPANISH_WORDS } from "@/data/spanishWords";
+import { useGameScore } from "@/hooks/useGameScore";
 
 type LetterState = "correct" | "present" | "absent" | "empty" | "tbd";
 
@@ -83,6 +84,17 @@ export default function SpanishWordle() {
   const [keyStates, setKeyStates] = useState<Record<string, LetterState>>({});
   const [stats, setStats] = useState({ streak: 0, wins: 0, played: 0 });
   const [showDictionary, setShowDictionary] = useState(false);
+  const { saveScore } = useGameScore();
+  const savedRef = useRef(false);
+
+  // Save score when game ends
+  useEffect(() => {
+    if (gameOver && !savedRef.current) {
+      savedRef.current = true;
+      const score = won ? Math.max(1, (MAX_GUESSES - guesses.length + 1) * 20) : 5;
+      saveScore("wordle", score, won ? 1 : 0, stats.streak);
+    }
+  }, [gameOver, won, guesses.length, stats.streak, saveScore]);
 
   const submitGuess = useCallback(() => {
     if (currentGuess.length !== WORD_LENGTH || gameOver) return;
@@ -160,6 +172,7 @@ export default function SpanishWordle() {
     setShakeRow(false);
     setRevealingRow(-1);
     setKeyStates({});
+    savedRef.current = false;
   };
 
   // Build display grid
