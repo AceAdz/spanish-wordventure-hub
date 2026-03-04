@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, BookOpen, X } from "lucide-react";
 import { SPANISH_WORDS } from "@/data/spanishWords";
 import { useGameScore } from "@/hooks/useGameScore";
-import { SPANISH_WORDS } from "@/data/spanishWords";
 
 type LetterState = "correct" | "present" | "absent" | "empty" | "tbd";
 
