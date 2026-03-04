@@ -38,6 +38,9 @@ export default function VerbMatch() {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [finished, setFinished] = useState(false);
   const [answered, setAnswered] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const { saveScore } = useGameScore();
+  const savedRef = useRef(false);
 
   const current = challenges[currentIdx];
 
