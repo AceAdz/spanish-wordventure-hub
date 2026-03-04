@@ -77,10 +77,16 @@ export default function VerbMatch() {
     [selected, current, streak, currentIdx, challenges]
   );
 
+  // Save score when game finishes
+  useEffect(() => {
+    if (finished && !savedRef.current) {
+      savedRef.current = true;
+      const accuracy = answered > 0 ? correctCount / answered : 0;
+      saveScore("verb_match", score, accuracy, bestStreak);
+    }
+  }, [finished, score, answered, correctCount, bestStreak, saveScore]);
+
   const restart = () => {
-    const newChallenges = getShuffledChallenges();
-    // We can't setState on challenges since it's from useState initializer,
-    // so we reload by remounting
     window.location.reload();
   };
 
