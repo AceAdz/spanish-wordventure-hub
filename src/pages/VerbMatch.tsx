@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, Trophy, CheckCircle, XCircle } from "lucide-react";
 import { VERB_CHALLENGES, VerbChallenge } from "@/data/spanishWords";
+import { useGameScore } from "@/hooks/useGameScore";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
