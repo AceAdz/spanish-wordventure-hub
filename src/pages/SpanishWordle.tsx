@@ -172,6 +172,7 @@ export default function SpanishWordle() {
     setShakeRow(false);
     setRevealingRow(-1);
     setKeyStates({});
+    savedRef.current = false;
   };
 
   // Build display grid
