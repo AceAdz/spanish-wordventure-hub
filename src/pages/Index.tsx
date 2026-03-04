@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Flame, Zap, BookOpen, Trophy, Star } from "lucide-react";
+import { Flame, Zap, BookOpen, Trophy, Star, User, LogIn, Crown } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const games = [
   {
@@ -24,6 +25,8 @@ const games = [
 ];
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* GitHub Star Banner */}
@@ -51,9 +54,42 @@ const Index = () => {
               Spanish Revision Hub
             </span>
           </Link>
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Trophy className="h-4 w-4" />
-            <span>Learn & Play</span>
+          <div className="flex items-center gap-1 text-muted-foreground text-sm">
+            <span>made by </span>
+            <a
+              href="https://github.com/aceadz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-bold hover:underline"
+            >
+              @aceadxm
+            </a>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/leaderboard"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-secondary transition-colors text-sm font-medium"
+            >
+              <Crown className="h-4 w-4" />
+              <span className="hidden sm:inline">Leaderboard</span>
+            </Link>
+            {user ? (
+              <Link
+                to="/profile"
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-display font-bold hover:opacity-90 transition-opacity"
+              >
+                <LogIn className="h-4 w-4" />
+                Sign Up
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -85,11 +121,9 @@ const Index = () => {
             >
               <Link to={game.path}>
                 <div className="group relative bg-card border border-border rounded-xl p-8 card-hover cursor-pointer overflow-hidden">
-                  {/* Glow background */}
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${game.gradient} opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500`}
                   />
-
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-4xl">{game.emoji}</span>
@@ -97,14 +131,12 @@ const Index = () => {
                         {game.stats}
                       </span>
                     </div>
-
                     <h2 className="font-display font-bold text-2xl text-foreground mb-2 group-hover:text-gradient-primary transition-colors">
                       {game.title}
                     </h2>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       {game.description}
                     </p>
-
                     <div className="mt-6 flex items-center gap-2 text-primary font-medium text-sm">
                       <span>Play now</span>
                       <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -115,6 +147,36 @@ const Index = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Leaderboard CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-12"
+        >
+          <Link
+            to="/leaderboard"
+            className="flex items-center gap-2 px-6 py-3 bg-card border border-border rounded-xl text-muted-foreground hover:text-secondary hover:border-secondary/50 transition-all font-display font-bold"
+          >
+            <Trophy className="h-5 w-5" />
+            View Leaderboard
+          </Link>
+        </motion.div>
+
+        {!user && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-4 text-sm text-muted-foreground"
+          >
+            <Link to="/auth" className="text-primary hover:underline font-medium">
+              Sign up
+            </Link>{" "}
+            to track your progress and earn badges!
+          </motion.p>
+        )}
       </main>
     </div>
   );
