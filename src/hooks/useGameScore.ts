@@ -6,7 +6,7 @@ export function useGameScore() {
   const { user } = useAuth();
 
   const saveScore = useCallback(
-    async (gameType: "wordle" | "verb_match", score: number, accuracy?: number, bestStreak?: number) => {
+    async (gameType: "wordle" | "verb_match" | "verb_fishing", score: number, accuracy?: number, bestStreak?: number) => {
       if (!user) return;
 
       // Insert score

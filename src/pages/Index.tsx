@@ -22,6 +22,15 @@ const games = [
     emoji: "🎯",
     stats: "50+ verbs",
   },
+  {
+    title: "Verb Fishing",
+    description: "Cast your line and catch the right conjugation! A fun fishing twist on verbs.",
+    icon: Zap,
+    path: "/verb-fishing",
+    gradient: "from-accent to-primary",
+    emoji: "🐟",
+    stats: "50+ verbs",
+  },
 ];
 
 const Index = () => {

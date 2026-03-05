@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import SpanishWordle from "./pages/SpanishWordle";
 import VerbMatch from "./pages/VerbMatch";
+import VerbFishing from "./pages/VerbFishing";
 import Auth from "./pages/Auth";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/wordle" element={<SpanishWordle />} />
             <Route path="/verb-match" element={<VerbMatch />} />
+            <Route path="/verb-fishing" element={<VerbFishing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
