@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Flame, Zap, BookOpen, Trophy, Star, User, LogIn, Crown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 
 const games = [
