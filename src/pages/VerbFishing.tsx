@@ -94,7 +94,7 @@ export default function VerbFishing() {
 
   const waterBobbing = {
     y: [0, -6, 0, -3, 0],
-    transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+    transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const },
   };
 
   return (

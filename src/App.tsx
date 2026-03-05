@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import SpanishWordle from "./pages/SpanishWordle";
 import VerbMatch from "./pages/VerbMatch";
+import VerbFishing from "./pages/VerbFishing";
 import Auth from "./pages/Auth";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
