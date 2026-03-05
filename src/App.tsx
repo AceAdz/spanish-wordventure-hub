@@ -25,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/wordle" element={<SpanishWordle />} />
             <Route path="/verb-match" element={<VerbMatch />} />
+            <Route path="/verb-fishing" element={<VerbFishing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
