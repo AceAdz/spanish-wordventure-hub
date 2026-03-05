@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Flame, Zap, BookOpen, Trophy, Star, User, LogIn, Crown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 
 const games = [
@@ -63,17 +69,28 @@ const Index = () => {
               Spanish Revision Hub
             </span>
           </Link>
-          <div className="flex items-center gap-1 text-muted-foreground text-sm">
-            <span>made by </span>
-            <a
-              href="https://github.com/aceadz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary font-bold hover:underline"
-            >
-              @aceadxm
-            </a>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition-colors">
+                <span>made by </span>
+                <span className="text-primary font-bold">@aceadxm</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="min-w-[160px]">
+              <DropdownMenuItem asChild>
+                <a href="https://www.tiktok.com/@aceadxm" target="_blank" rel="noopener noreferrer" className="cursor-pointer">TikTok</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://www.instagram.com/adxm.fr" target="_blank" rel="noopener noreferrer" className="cursor-pointer">Instagram</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://x.com/AceAdz_" target="_blank" rel="noopener noreferrer" className="cursor-pointer">X (Twitter)</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://github.com/AceAdz" target="_blank" rel="noopener noreferrer" className="cursor-pointer">GitHub</a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="flex items-center gap-3">
             <Link
               to="/leaderboard"
