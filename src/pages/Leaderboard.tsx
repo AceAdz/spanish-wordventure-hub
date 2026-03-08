@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Awar
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import AuthWall from "@/components/AuthWall";
 
 type LeaderboardEntry = {
   user_id: string;
@@ -247,4 +248,6 @@ export default function Leaderboard() {
       </main>
     </div>
   );
+
+  return <AuthWall>{content}</AuthWall>;
 }
