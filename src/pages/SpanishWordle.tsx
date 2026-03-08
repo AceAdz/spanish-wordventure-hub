@@ -29,6 +29,7 @@ const KEYBOARD_ROWS = [
 ];
 
 const FIVE_LETTER_WORDS = SPANISH_WORDS.filter((w) => w.word.length === WORD_LENGTH);
+const VALID_WORDS_SET = new Set(FIVE_LETTER_WORDS.map((w) => w.word.toUpperCase()));
 
 function getRandomWord() {
   return FIVE_LETTER_WORDS[Math.floor(Math.random() * FIVE_LETTER_WORDS.length)];
