@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Award } from "lucide-react";
+import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Award, Trash2, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 
 type LeaderboardEntry = {
   user_id: string;
@@ -27,10 +28,12 @@ type UserStats = {
 
 export default function Leaderboard() {
   const { user } = useAuth();
+  const { isAdmin, deleteUserData } = useAdmin();
   const [tab, setTab] = useState<Tab>("global");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState<UserStats>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => { fetchLeaderboard(); }, [tab, user]);
   useEffect(() => { if (user) fetchUserStats(); }, [user]);
@@ -63,7 +66,6 @@ export default function Leaderboard() {
     try {
       if (tab === "global") {
         const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url, total_score, games_played").gt("total_score", 0).order("total_score", { ascending: false }).limit(50);
-        // Get best game for each user
         const userIds = (data ?? []).map(p => p.user_id);
         let bestGames: Record<string, string> = {};
         if (userIds.length > 0) {
@@ -95,6 +97,17 @@ export default function Leaderboard() {
     } finally { setLoading(false); }
   }
 
+  const handleAdminDelete = async (targetUserId: string, displayName: string | null) => {
+    if (!confirm(`Remove ${displayName || "this user"} from leaderboard? This wipes their scores, badges, and sets their name to [Deleted].`)) return;
+    setDeletingId(targetUserId);
+    const success = await deleteUserData(targetUserId);
+    if (success) {
+      fetchLeaderboard();
+      if (user) fetchUserStats();
+    }
+    setDeletingId(null);
+  };
+
   const tabs: { id: Tab; label: string; icon: typeof Globe }[] = [
     { id: "global", label: "All Time", icon: Globe },
     { id: "weekly", label: "Weekly", icon: Calendar },
@@ -110,7 +123,7 @@ export default function Leaderboard() {
 
   const gameLabel = (g: string | null | undefined) => {
     if (!g) return null;
-    const map: Record<string, string> = { wordle: "🇪🇸 Wordle", verb_match: "🎯 Verb Match", verb_fishing: "🐟 Verb Fishing" };
+    const map: Record<string, string> = { wordle: "🇪🇸 Wordle", verb_match: "🎯 Verb Match", verb_fishing: "🐟 Verb Fishing", palabra_surge: "⚡ Palabra Surge", duelo: "⚔️ Duelo", memoria: "🃏 Memoria" };
     return map[g] ?? g;
   };
 
@@ -123,12 +136,22 @@ export default function Leaderboard() {
           </Link>
           <h1 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
             <Trophy className="h-5 w-5 text-secondary" /> Leaderboard
+            {isAdmin && <Shield className="h-4 w-4 text-primary" />}
           </h1>
           <div className="w-16" />
         </div>
       </header>
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
+        {/* Admin banner */}
+        {isAdmin && (
+          <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-xl mb-4 text-xs">
+            <Shield className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-primary font-bold">Admin mode</span>
+            <span className="text-muted-foreground">— click the trash icon to remove inappropriate users</span>
+          </div>
+        )}
+
         {/* Your Stats Card */}
         {user && userStats && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-primary/20 rounded-xl p-5 mb-6">
@@ -206,6 +229,17 @@ export default function Leaderboard() {
                   </div>
                 </div>
                 <div className="font-display font-bold text-xl text-foreground">{entry.score.toLocaleString()}</div>
+                {/* Admin delete button */}
+                {isAdmin && entry.user_id !== user?.id && (
+                  <button
+                    onClick={() => handleAdminDelete(entry.user_id, entry.display_name)}
+                    disabled={deletingId === entry.user_id}
+                    className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-50"
+                    title="Remove user (admin)"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </motion.div>
             ))}
           </div>
