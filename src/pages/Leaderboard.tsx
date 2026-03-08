@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Award, Trash2, Shield } from "lucide-react";
+import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Award, Trash2, Shield, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -66,7 +66,7 @@ export default function Leaderboard() {
     setLoading(true);
     try {
       if (tab === "global") {
-        const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url, total_score, games_played").gt("total_score", 0).order("total_score", { ascending: false }).limit(50);
+        const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url, total_score, games_played").order("total_score", { ascending: false }).limit(100);
         const userIds = (data ?? []).map(p => p.user_id);
         let bestGames: Record<string, string> = {};
         if (userIds.length > 0) {
@@ -220,10 +220,10 @@ export default function Leaderboard() {
                   {entry.avatar_url ? <img src={entry.avatar_url} alt="" className="h-full w-full object-cover" /> : <span className="font-display font-bold text-muted-foreground">{(entry.display_name || "?")[0].toUpperCase()}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-display font-bold text-foreground truncate">
+                  <Link to={`/user/${entry.user_id}`} className="font-display font-bold text-foreground truncate hover:text-primary transition-colors block">
                     {entry.display_name || "Anonymous"}
                     {entry.user_id === user?.id && <span className="text-primary text-xs ml-2">(you)</span>}
-                  </p>
+                  </Link>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{entry.games} games</span>
                     {entry.best_game && <><span>·</span><span>{gameLabel(entry.best_game)}</span></>}

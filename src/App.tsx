@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Classroom from "./pages/Classroom";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import CopyProtection from "./components/CopyProtection";
 
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/classroom" element={<Classroom />} />
+            <Route path="/user/:userId" element={<UserProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
