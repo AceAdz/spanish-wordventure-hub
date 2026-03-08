@@ -49,6 +49,9 @@ export default function Classroom() {
   const [className, setClassName] = useState("");
   const [classDesc, setClassDesc] = useState("");
   const [joinCode, setJoinCode] = useState("");
+  const [adminCode, setAdminCode] = useState("");
+  const [adminVerified, setAdminVerified] = useState(false);
+  const [adminStep, setAdminStep] = useState(true); // true = show admin code input first
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
