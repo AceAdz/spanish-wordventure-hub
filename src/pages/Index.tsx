@@ -46,6 +46,24 @@ const games = [
     color: "from-primary to-secondary",
     iconColor: "text-primary",
   },
+  {
+    title: "Duelo de Palabras",
+    description: "Lightning-fast reaction game! Smash the correct translation before time runs out.",
+    path: "/duelo",
+    emoji: "⚔️",
+    stats: "Speed duel",
+    color: "from-secondary to-accent",
+    iconColor: "text-secondary",
+  },
+  {
+    title: "Memoria Mágica",
+    description: "Flip cards to match Spanish-English pairs. Memorize, match, combo!",
+    path: "/memoria",
+    emoji: "🃏",
+    stats: "3 difficulties",
+    color: "from-accent to-secondary",
+    iconColor: "text-accent",
+  },
 ];
 
 const Index = () => {

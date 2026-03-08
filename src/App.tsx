@@ -9,6 +9,8 @@ import SpanishWordle from "./pages/SpanishWordle";
 import VerbMatch from "./pages/VerbMatch";
 import VerbFishing from "./pages/VerbFishing";
 import PalabraSurge from "./pages/PalabraSurge";
+import DueloPalabras from "./pages/DueloPalabras";
+import MemoriaMagica from "./pages/MemoriaMagica";
 import Auth from "./pages/Auth";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/verb-match" element={<VerbMatch />} />
             <Route path="/verb-fishing" element={<VerbFishing />} />
             <Route path="/palabra-surge" element={<PalabraSurge />} />
+            <Route path="/duelo" element={<DueloPalabras />} />
+            <Route path="/memoria" element={<MemoriaMagica />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
