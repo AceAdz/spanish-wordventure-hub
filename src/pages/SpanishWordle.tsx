@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, BookOpen, X, PartyPopper, Frown, Flame, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, RotateCcw, BookOpen, X, PartyPopper, Frown, Flame, Sparkles, Zap, Search } from "lucide-react";
 import { SPANISH_WORDS } from "@/data/spanishWords";
 import { useGameScore } from "@/hooks/useGameScore";
 import {
@@ -130,6 +130,7 @@ export default function SpanishWordle() {
   const [keyStates, setKeyStates] = useState<Record<string, LetterState>>({});
   const [stats, setStats] = useState({ streak: 0, wins: 0, played: 0 });
   const [showDictionary, setShowDictionary] = useState(false);
+  const [dictSearch, setDictSearch] = useState("");
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [bounceRow, setBounceRow] = useState(-1);
@@ -299,13 +300,41 @@ export default function SpanishWordle() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <input
+                    value={dictSearch}
+                    onChange={(e) => setDictSearch(e.target.value)}
+                    placeholder="Search words or letters..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-muted/50 border border-border/30 rounded-lg text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                  />
+                </div>
+                {dictSearch && (
+                  <button onClick={() => setDictSearch("")} className="text-muted-foreground hover:text-foreground p-1">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
               <div className="max-h-48 overflow-y-auto space-y-1">
-                {FIVE_LETTER_WORDS.map((w, i) => (
+                {FIVE_LETTER_WORDS
+                  .filter(w => {
+                    if (!dictSearch.trim()) return true;
+                    const q = dictSearch.trim().toLowerCase();
+                    return w.word.toLowerCase().includes(q) || w.english.toLowerCase().includes(q);
+                  })
+                  .map((w, i) => (
                   <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded-md bg-card/50 text-sm">
                     <span className="font-display font-bold text-foreground tracking-wide">{w.word}</span>
                     <span className="text-muted-foreground italic">{w.english}</span>
                   </div>
                 ))}
+                {dictSearch.trim() && FIVE_LETTER_WORDS.filter(w => {
+                  const q = dictSearch.trim().toLowerCase();
+                  return w.word.toLowerCase().includes(q) || w.english.toLowerCase().includes(q);
+                }).length === 0 && (
+                  <div className="text-center py-4 text-muted-foreground text-sm">No words found</div>
+                )}
               </div>
             </div>
           </motion.div>
