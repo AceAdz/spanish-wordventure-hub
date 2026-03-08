@@ -49,6 +49,9 @@ export default function Classroom() {
   const [className, setClassName] = useState("");
   const [classDesc, setClassDesc] = useState("");
   const [joinCode, setJoinCode] = useState("");
+  const [adminCode, setAdminCode] = useState("");
+  const [adminVerified, setAdminVerified] = useState(false);
+  const [adminStep, setAdminStep] = useState(true); // true = show admin code input first
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -104,8 +107,38 @@ export default function Classroom() {
     fetchClasses();
   }, [fetchClasses]);
 
+  const verifyAdminCode = async () => {
+    if (!user || !adminCode.trim()) return;
+    setLoading(true);
+    setError("");
+
+    const { data } = await supabase
+      .from("teacher_codes")
+      .select("*")
+      .eq("code", adminCode.trim().toUpperCase())
+      .eq("used", false)
+      .single();
+
+    if (!data) {
+      setError("Invalid or already used teacher code.");
+      setLoading(false);
+      return;
+    }
+
+    // Mark code as used
+    await supabase
+      .from("teacher_codes")
+      .update({ used: true, used_by: user.id, used_at: new Date().toISOString() })
+      .eq("id", data.id);
+
+    setAdminVerified(true);
+    setAdminStep(false);
+    setError("");
+    setLoading(false);
+  };
+
   const createClass = async () => {
-    if (!user || !className.trim()) return;
+    if (!user || !className.trim() || !adminVerified) return;
     setLoading(true);
     setError("");
     
@@ -122,6 +155,9 @@ export default function Classroom() {
     } else {
       setClassName("");
       setClassDesc("");
+      setAdminCode("");
+      setAdminVerified(false);
+      setAdminStep(true);
       setShowCreate(false);
       fetchClasses();
     }
@@ -338,42 +374,86 @@ export default function Classroom() {
       </main>
 
       {/* Create Class Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+      <Dialog open={showCreate} onOpenChange={(open) => {
+        setShowCreate(open);
+        if (!open) {
+          setAdminCode("");
+          setAdminVerified(false);
+          setAdminStep(true);
+          setError("");
+        }
+      }}>
         <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-lg border-border/50">
           <DialogHeader>
             <DialogTitle className="font-display text-xl flex items-center gap-2">
               <Plus className="h-5 w-5 text-accent" /> Create Class
             </DialogTitle>
-            <DialogDescription>Create a classroom and share the code with your students</DialogDescription>
+            <DialogDescription>
+              {adminStep ? "Enter a teacher code to create a class" : "Set up your classroom"}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <div>
-              <label className="text-sm font-display font-bold text-foreground mb-1 block">Class Name</label>
-              <input
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
-                placeholder="e.g. Spanish Period 3"
-                className="w-full px-4 py-2.5 bg-muted/50 border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent"
-              />
+
+          {adminStep && !adminVerified ? (
+            <div className="space-y-4 pt-2">
+              <div className="p-4 bg-accent/5 border border-accent/15 rounded-xl">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  To create a class, you need a <span className="text-accent font-bold">teacher code</span>. 
+                  Email <a href="mailto:itxwadz@gmail.com" className="text-primary font-bold hover:underline">aceadxm at itxwadz@gmail.com</a> to 
+                  request a code. He will provide you with a teacher code to set up your class.
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-display font-bold text-foreground mb-1 block">Teacher Code</label>
+                <input
+                  value={adminCode}
+                  onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. TEACH-XXXXXX"
+                  className="w-full px-4 py-3 bg-muted/50 border border-border/50 rounded-lg text-foreground text-center font-display font-bold text-lg tracking-wider placeholder:text-muted-foreground placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-accent"
+                />
+              </div>
+              {error && <p className="text-destructive text-sm">{error}</p>}
+              <button
+                onClick={verifyAdminCode}
+                disabled={loading || !adminCode.trim()}
+                className="w-full py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-xl font-display font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {loading ? "Verifying..." : "Verify Code"}
+              </button>
             </div>
-            <div>
-              <label className="text-sm font-display font-bold text-foreground mb-1 block">Description (optional)</label>
-              <input
-                value={classDesc}
-                onChange={(e) => setClassDesc(e.target.value)}
-                placeholder="e.g. Mrs. Garcia's class"
-                className="w-full px-4 py-2.5 bg-muted/50 border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent"
-              />
+          ) : (
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 p-2.5 bg-success/10 border border-success/20 rounded-lg">
+                <Check className="h-4 w-4 text-success" />
+                <span className="text-xs font-bold text-success">Teacher code verified!</span>
+              </div>
+              <div>
+                <label className="text-sm font-display font-bold text-foreground mb-1 block">Class Name</label>
+                <input
+                  value={className}
+                  onChange={(e) => setClassName(e.target.value)}
+                  placeholder="e.g. Spanish Period 3"
+                  className="w-full px-4 py-2.5 bg-muted/50 border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-display font-bold text-foreground mb-1 block">Description (optional)</label>
+                <input
+                  value={classDesc}
+                  onChange={(e) => setClassDesc(e.target.value)}
+                  placeholder="e.g. Mrs. Garcia's class"
+                  className="w-full px-4 py-2.5 bg-muted/50 border border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent"
+                />
+              </div>
+              {error && <p className="text-destructive text-sm">{error}</p>}
+              <button
+                onClick={createClass}
+                disabled={loading || !className.trim()}
+                className="w-full py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-xl font-display font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {loading ? "Creating..." : "Create Class"}
+              </button>
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
-            <button
-              onClick={createClass}
-              disabled={loading || !className.trim()}
-              className="w-full py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground rounded-xl font-display font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {loading ? "Creating..." : "Create Class"}
-            </button>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
