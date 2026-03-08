@@ -345,6 +345,20 @@ export default function SpanishWordle() {
           </div>
         </div>
 
+        {/* Invalid word toast */}
+        <AnimatePresence>
+          {invalidWord && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-3 px-4 py-2 bg-destructive/20 border border-destructive/30 rounded-lg text-destructive text-sm font-display font-bold"
+            >
+              Not in word list!
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Grid */}
         <div className="flex flex-col gap-1.5 mb-4">
           {displayRows.map((row, rowIdx) => (
