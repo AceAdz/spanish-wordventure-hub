@@ -15,6 +15,7 @@ type LeaderboardEntry = {
   games: number;
   rank: number;
   best_game?: string | null;
+  roles?: string[];
 };
 
 type Tab = "global" | "weekly" | "friends";
@@ -69,12 +70,17 @@ export default function Leaderboard() {
         const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url, total_score, games_played").order("total_score", { ascending: false }).limit(100);
         const userIds = (data ?? []).map(p => p.user_id);
         let bestGames: Record<string, string> = {};
+        let rolesMap: Record<string, string[]> = {};
         if (userIds.length > 0) {
-          const { data: scores } = await supabase.from("game_scores").select("user_id, game_type, score").in("user_id", userIds).order("score", { ascending: false });
+          const [{ data: scores }, { data: roles }] = await Promise.all([
+            supabase.from("game_scores").select("user_id, game_type, score").in("user_id", userIds).order("score", { ascending: false }),
+            supabase.from("user_roles").select("user_id, role").in("user_id", userIds),
+          ]);
           const seen = new Set<string>();
           (scores ?? []).forEach(s => { if (!seen.has(s.user_id)) { bestGames[s.user_id] = s.game_type; seen.add(s.user_id); } });
+          (roles ?? []).forEach(r => { if (!rolesMap[r.user_id]) rolesMap[r.user_id] = []; rolesMap[r.user_id].push(r.role); });
         }
-        setEntries((data ?? []).map((p, i) => ({ user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, score: p.total_score, games: p.games_played, rank: i + 1, best_game: bestGames[p.user_id] ?? null })));
+        setEntries((data ?? []).map((p, i) => ({ user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, score: p.total_score, games: p.games_played, rank: i + 1, best_game: bestGames[p.user_id] ?? null, roles: rolesMap[p.user_id] ?? [] })));
       } else if (tab === "weekly") {
         const weekStart = new Date();
         weekStart.setDate(weekStart.getDate() - weekStart.getDay());
@@ -220,10 +226,18 @@ export default function Leaderboard() {
                   {entry.avatar_url ? <img src={entry.avatar_url} alt="" className="h-full w-full object-cover" /> : <span className="font-display font-bold text-muted-foreground">{(entry.display_name || "?")[0].toUpperCase()}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/user/${entry.user_id}`} className="font-display font-bold text-foreground truncate hover:text-primary transition-colors block">
-                    {entry.display_name || "Anonymous"}
-                    {entry.user_id === user?.id && <span className="text-primary text-xs ml-2">(you)</span>}
-                  </Link>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Link to={`/user/${entry.user_id}`} className="font-display font-bold text-foreground truncate hover:text-primary transition-colors">
+                      {entry.display_name || "Anonymous"}
+                    </Link>
+                    {entry.roles?.includes("owner") && (
+                      <span className="px-1.5 py-0.5 bg-secondary/20 border border-secondary/30 rounded text-[9px] font-bold text-secondary uppercase tracking-wider">Owner</span>
+                    )}
+                    {entry.roles?.includes("admin") && !entry.roles?.includes("owner") && (
+                      <span className="px-1.5 py-0.5 bg-primary/15 border border-primary/25 rounded text-[9px] font-bold text-primary uppercase tracking-wider">Admin</span>
+                    )}
+                    {entry.user_id === user?.id && <span className="text-primary text-[10px]">(you)</span>}
+                  </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{entry.games} games</span>
                     {entry.best_game && <><span>·</span><span>{gameLabel(entry.best_game)}</span></>}

@@ -5,17 +5,18 @@ import { useAuth } from "@/hooks/useAuth";
 export function useAdmin() {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const checkAdmin = useCallback(async () => {
-    if (!user) { setIsAdmin(false); setLoading(false); return; }
+    if (!user) { setIsAdmin(false); setIsOwner(false); setLoading(false); return; }
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", user.id);
+    const roles = (data ?? []).map(r => r.role);
+    setIsAdmin(roles.includes("admin") || roles.includes("owner"));
+    setIsOwner(roles.includes("owner"));
     setLoading(false);
   }, [user]);
 
@@ -37,5 +38,5 @@ export function useAdmin() {
     return false;
   }, [user]);
 
-  return { isAdmin, loading, deleteUserData, claimAdminCode, recheckAdmin: checkAdmin };
+  return { isAdmin, isOwner, loading, deleteUserData, claimAdminCode, recheckAdmin: checkAdmin };
 }
