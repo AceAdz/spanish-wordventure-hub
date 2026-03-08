@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, LogOut, Trophy, Gamepad2, Flame, Pencil, Check, X,
-  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye,
+  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye, Camera, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,6 +64,10 @@ export default function Profile() {
   const [adminError, setAdminError] = useState("");
   const [adminSuccess, setAdminSuccess] = useState(false);
   const [claimingAdmin, setClaimingAdmin] = useState(false);
+
+  // Avatar upload
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -220,6 +224,55 @@ export default function Profile() {
     setClaimingAdmin(false);
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) { setAvatarError("Please select an image file"); return; }
+    if (file.size > 2 * 1024 * 1024) { setAvatarError("Image must be under 2MB"); return; }
+
+    setUploadingAvatar(true);
+    setAvatarError("");
+
+    try {
+      // Convert to base64 for AI moderation
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1]); // strip data:image/...;base64,
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // AI moderation check
+      const { data: modResult, error: modError } = await supabase.functions.invoke("moderate-avatar", {
+        body: { imageBase64: base64 },
+      });
+
+      if (modError) throw new Error("Moderation check failed");
+      if (!modResult?.safe) {
+        setAvatarError(modResult?.reason || "Image rejected by moderation");
+        setUploadingAvatar(false);
+        return;
+      }
+
+      // Upload to storage
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`; // cache bust
+
+      await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("user_id", user.id);
+      setProfile((p: any) => ({ ...p, avatar_url: avatarUrl }));
+    } catch (err: any) {
+      setAvatarError(err?.message || "Upload failed");
+    }
+    setUploadingAvatar(false);
+  };
   const handleSignOut = async () => { await signOut(); navigate("/"); };
 
   if (authLoading || loading) {
@@ -284,17 +337,24 @@ export default function Profile() {
         {/* Profile Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-border rounded-2xl p-6 text-center">
-          <div className="h-20 w-20 rounded-full bg-muted mx-auto mb-3 overflow-hidden">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center">
-                <span className="font-display font-bold text-2xl text-muted-foreground">
-                  {(profile?.display_name || "?")[0].toUpperCase()}
-                </span>
-              </div>
-            )}
+          <div className="relative h-20 w-20 mx-auto mb-3 group">
+            <div className="h-20 w-20 rounded-full bg-muted overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center">
+                  <span className="font-display font-bold text-2xl text-muted-foreground">
+                    {(profile?.display_name || "?")[0].toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <label className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              {uploadingAvatar ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+            </label>
           </div>
+          {avatarError && <p className="text-destructive text-xs mb-2">{avatarError}</p>}
 
           {/* Username + Admin badge */}
           {editing ? (

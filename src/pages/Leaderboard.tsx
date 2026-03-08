@@ -5,6 +5,7 @@ import { ArrowLeft, Trophy, Crown, Medal, Users, Calendar, Globe, Gamepad2, Awar
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import AuthWall from "@/components/AuthWall";
 
 type LeaderboardEntry = {
   user_id: string;
@@ -128,7 +129,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <AuthWall><div className="min-h-screen bg-background flex flex-col">
       <header className="border-b border-border/30 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
@@ -246,5 +247,6 @@ export default function Leaderboard() {
         )}
       </main>
     </div>
+    </AuthWall>
   );
 }
