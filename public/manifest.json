@@ -1,0 +1,17 @@
+{
+  "name": "Jugar - Spanish Games",
+  "short_name": "Jugar",
+  "description": "Master Spanish through addictive games",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141318",
+  "theme_color": "#dc3545",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
