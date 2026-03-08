@@ -511,44 +511,25 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Stats bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="flex items-center gap-6 sm:gap-10 mt-8 sm:mt-12 px-6 py-3 bg-card/30 backdrop-blur-sm border border-border/10 rounded-2xl"
-        >
-          {[
-            { label: "Games", value: "6", color: "text-primary" },
-            { label: "Words", value: "200+", color: "text-secondary" },
-            { label: "Players", value: "∞", color: "text-accent" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className={`font-display font-black text-lg sm:text-xl ${stat.color}`}>{stat.value}</div>
-              <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
-
         {/* Bottom actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="flex flex-wrap justify-center gap-2.5 sm:gap-3 mt-6 sm:mt-8"
+          transition={{ delay: 0.8 }}
+          className="flex flex-wrap justify-center gap-2.5 sm:gap-3 mt-8 sm:mt-10"
         >
           <Link
             to="/leaderboard"
-            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-border/20 rounded-xl text-muted-foreground hover:text-secondary hover:border-secondary/30 transition-all font-display font-bold text-xs sm:text-sm"
+            className="group flex items-center gap-2 px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-secondary/20 rounded-xl text-muted-foreground hover:text-secondary hover:border-secondary/40 hover:shadow-[0_0_30px_-8px_hsl(var(--secondary)/0.3)] transition-all font-display font-bold text-xs sm:text-sm"
           >
-            <Trophy className="h-4 w-4" />
+            <Trophy className="h-4 w-4 group-hover:scale-110 transition-transform" />
             Leaderboard
           </Link>
           <Link
             to="/classroom"
-            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-border/20 rounded-xl text-muted-foreground hover:text-accent hover:border-accent/30 transition-all font-display font-bold text-xs sm:text-sm"
+            className="group flex items-center gap-2 px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-accent/20 rounded-xl text-muted-foreground hover:text-accent hover:border-accent/40 hover:shadow-[0_0_30px_-8px_hsl(var(--accent)/0.3)] transition-all font-display font-bold text-xs sm:text-sm"
           >
-            <GraduationCap className="h-4 w-4" />
+            <GraduationCap className="h-4 w-4 group-hover:scale-110 transition-transform" />
             Create Class
           </Link>
         </motion.div>
