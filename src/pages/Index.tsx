@@ -37,6 +37,15 @@ const games = [
     color: "from-accent to-primary",
     iconColor: "text-accent",
   },
+  {
+    title: "Palabra Surge",
+    description: "Words rise from the deep — type translations before they escape! Power-ups & combos.",
+    path: "/palabra-surge",
+    emoji: "⚡",
+    stats: "Survival mode",
+    color: "from-primary to-secondary",
+    iconColor: "text-primary",
+  },
 ];
 
 const Index = () => {
