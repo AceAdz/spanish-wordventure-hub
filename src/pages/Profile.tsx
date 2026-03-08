@@ -273,8 +273,7 @@ export default function Profile() {
     }
     setUploadingAvatar(false);
   };
-
-
+  const handleSignOut = async () => { await signOut(); navigate("/"); };
 
   if (authLoading || loading) {
     return (
