@@ -337,17 +337,24 @@ export default function Profile() {
         {/* Profile Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-border rounded-2xl p-6 text-center">
-          <div className="h-20 w-20 rounded-full bg-muted mx-auto mb-3 overflow-hidden">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center">
-                <span className="font-display font-bold text-2xl text-muted-foreground">
-                  {(profile?.display_name || "?")[0].toUpperCase()}
-                </span>
-              </div>
-            )}
+          <div className="relative h-20 w-20 mx-auto mb-3 group">
+            <div className="h-20 w-20 rounded-full bg-muted overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center">
+                  <span className="font-display font-bold text-2xl text-muted-foreground">
+                    {(profile?.display_name || "?")[0].toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <label className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              {uploadingAvatar ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+            </label>
           </div>
+          {avatarError && <p className="text-destructive text-xs mb-2">{avatarError}</p>}
 
           {/* Username + Admin badge */}
           {editing ? (
