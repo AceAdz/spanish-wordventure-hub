@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Flame, Trophy, Star, User, LogIn, Crown, GraduationCap, ArrowRight, Sparkles, Zap, Gamepad2 } from "lucide-react";
+import { Flame, Trophy, Star, User, LogIn, Crown, GraduationCap, ArrowRight, Gamepad2, Zap, Swords, Layers } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect, useRef } from "react";
 
 const games = [
   {
@@ -16,10 +17,8 @@ const games = [
     path: "/wordle",
     emoji: "🇪🇸",
     stats: "56+ words",
-    gradient: "from-[hsl(0,78%,55%)] to-[hsl(25,95%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(0,78%,55%,0.4)]",
-    border: "border-[hsl(0,78%,55%,0.3)]",
-    badge: "bg-[hsl(0,78%,55%,0.15)] text-primary",
+    color: "primary" as const,
+    icon: Gamepad2,
   },
   {
     title: "Verb Match",
@@ -27,10 +26,8 @@ const games = [
     path: "/verb-match",
     emoji: "🎯",
     stats: "120+ verbs",
-    gradient: "from-[hsl(40,90%,55%)] to-[hsl(25,95%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(40,90%,55%,0.4)]",
-    border: "border-[hsl(40,90%,55%,0.3)]",
-    badge: "bg-[hsl(40,90%,55%,0.15)] text-secondary",
+    color: "secondary" as const,
+    icon: Layers,
   },
   {
     title: "Verb Fishing",
@@ -38,10 +35,8 @@ const games = [
     path: "/verb-fishing",
     emoji: "🎣",
     stats: "22 species",
-    gradient: "from-[hsl(25,95%,55%)] to-[hsl(0,78%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(25,95%,55%,0.4)]",
-    border: "border-[hsl(25,95%,55%,0.3)]",
-    badge: "bg-[hsl(25,95%,55%,0.15)] text-accent",
+    color: "accent" as const,
+    icon: Gamepad2,
   },
   {
     title: "Palabra Surge",
@@ -49,10 +44,8 @@ const games = [
     path: "/palabra-surge",
     emoji: "⚡",
     stats: "Survival",
-    gradient: "from-[hsl(0,78%,55%)] to-[hsl(40,90%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(0,78%,55%,0.3)]",
-    border: "border-[hsl(0,78%,55%,0.25)]",
-    badge: "bg-[hsl(0,78%,55%,0.15)] text-primary",
+    color: "primary" as const,
+    icon: Zap,
   },
   {
     title: "Duelo de Palabras",
@@ -60,10 +53,8 @@ const games = [
     path: "/duelo",
     emoji: "⚔️",
     stats: "Speed duel",
-    gradient: "from-[hsl(40,90%,55%)] to-[hsl(0,78%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(40,90%,55%,0.3)]",
-    border: "border-[hsl(40,90%,55%,0.25)]",
-    badge: "bg-[hsl(40,90%,55%,0.15)] text-secondary",
+    color: "secondary" as const,
+    icon: Swords,
   },
   {
     title: "Memoria Mágica",
@@ -71,52 +62,293 @@ const games = [
     path: "/memoria",
     emoji: "🃏",
     stats: "3 modes",
-    gradient: "from-[hsl(25,95%,55%)] to-[hsl(40,90%,55%)]",
-    glow: "shadow-[0_0_40px_-8px_hsl(25,95%,55%,0.3)]",
-    border: "border-[hsl(25,95%,55%,0.25)]",
-    badge: "bg-[hsl(25,95%,55%,0.15)] text-accent",
+    color: "accent" as const,
+    icon: Layers,
   },
 ];
 
-const FloatingOrb = ({ delay, size, x, color }: { delay: number; size: number; x: string; color: string }) => (
-  <motion.div
-    className="absolute rounded-full pointer-events-none blur-2xl"
-    style={{ width: size, height: size, left: x, background: color }}
-    animate={{ y: [600, -200], opacity: [0, 0.4, 0] }}
-    transition={{ duration: 10 + delay * 2, repeat: Infinity, delay, ease: "linear" }}
-  />
-);
+const colorMap = {
+  primary: {
+    gradient: "from-primary/20 to-primary/5",
+    border: "border-primary/20 hover:border-primary/50",
+    glow: "hover:shadow-[0_0_50px_-12px_hsl(var(--primary)/0.5)]",
+    badge: "bg-primary/15 text-primary",
+    accent: "text-primary",
+    ring: "group-hover:ring-primary/30",
+    dot: "bg-primary",
+  },
+  secondary: {
+    gradient: "from-secondary/20 to-secondary/5",
+    border: "border-secondary/20 hover:border-secondary/50",
+    glow: "hover:shadow-[0_0_50px_-12px_hsl(var(--secondary)/0.5)]",
+    badge: "bg-secondary/15 text-secondary",
+    accent: "text-secondary",
+    ring: "group-hover:ring-secondary/30",
+    dot: "bg-secondary",
+  },
+  accent: {
+    gradient: "from-accent/20 to-accent/5",
+    border: "border-accent/20 hover:border-accent/50",
+    glow: "hover:shadow-[0_0_50px_-12px_hsl(var(--accent)/0.5)]",
+    badge: "bg-accent/15 text-accent",
+    accent: "text-accent",
+    ring: "group-hover:ring-accent/30",
+    dot: "bg-accent",
+  },
+};
+
+// Animated counter
+const AnimatedNumber = ({ value, duration = 2 }: { value: number; duration?: number }) => {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const step = value / (duration * 60);
+    const id = setInterval(() => {
+      start += step;
+      if (start >= value) { setDisplay(value); clearInterval(id); }
+      else setDisplay(Math.floor(start));
+    }, 1000 / 60);
+    return () => clearInterval(id);
+  }, [value, duration]);
+  return <span>{display}</span>;
+};
+
+// Particle system
+const Particles = () => {
+  const particles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 3 + 1,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * 10,
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-primary/20"
+          style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
+          animate={{
+            y: [-20, 20, -20],
+            x: [-10, 10, -10],
+            opacity: [0.2, 0.6, 0.2],
+          }}
+          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const GameCard = ({ game, index, featured = false }: { game: typeof games[0]; index: number; featured?: boolean }) => {
+  const colors = colorMap[game.color];
+  const [isHovered, setIsHovered] = useState(false);
+
+  if (featured) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 100 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+      >
+        <Link to={game.path} className="block">
+          <div className={`group relative bg-card/60 backdrop-blur-xl border ${colors.border} rounded-3xl p-6 sm:p-8 overflow-hidden transition-all duration-500 ${colors.glow} ring-1 ring-transparent ${colors.ring}`}>
+            {/* Animated gradient bg */}
+            <motion.div
+              className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-50`}
+              animate={{ opacity: isHovered ? 0.8 : 0.5 }}
+            />
+            {/* Scan line effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-b from-transparent via-foreground/[0.02] to-transparent"
+              animate={{ y: ["-100%", "200%"] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            />
+            {/* Corner accents */}
+            <div className={`absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 ${colors.border} rounded-tl-3xl opacity-50`} />
+            <div className={`absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 ${colors.border} rounded-br-3xl opacity-50`} />
+            
+            {/* Floating emoji */}
+            <motion.div
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 text-6xl sm:text-8xl opacity-10"
+              animate={{ rotate: [0, 5, -5, 0], y: [0, -5, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {game.emoji}
+            </motion.div>
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <motion.span
+                  className="text-4xl sm:text-5xl"
+                  animate={isHovered ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
+                  transition={{ duration: 0.5 }}
+                >
+                  {game.emoji}
+                </motion.span>
+                <span className={`text-[10px] font-bold ${colors.badge} px-3 py-1 rounded-full uppercase tracking-wider`}>
+                  {game.stats}
+                </span>
+                <span className="text-[10px] font-bold bg-foreground/10 text-foreground/60 px-3 py-1 rounded-full uppercase tracking-wider">
+                  Featured
+                </span>
+              </div>
+              <h2 className="font-display font-black text-2xl sm:text-4xl text-foreground mb-2">
+                {game.title}
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-5 max-w-md">
+                {game.description}
+              </p>
+              <motion.div
+                className={`inline-flex items-center gap-2 ${colors.accent} font-display font-bold text-base sm:text-lg`}
+                whileHover={{ x: 5 }}
+              >
+                <span>Play Now</span>
+                <motion.div animate={isHovered ? { x: [0, 5, 0] } : {}} transition={{ duration: 0.8, repeat: Infinity }}>
+                  <ArrowRight className="h-5 w-5" />
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15 + index * 0.08, type: "spring", stiffness: 120 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      <Link to={game.path} className="block h-full">
+        <div className={`group relative bg-card/40 backdrop-blur-sm border ${colors.border} rounded-2xl p-4 sm:p-5 overflow-hidden transition-all duration-500 hover:scale-[1.04] hover:-translate-y-2 ${colors.glow} h-full ring-1 ring-transparent ${colors.ring}`}>
+          {/* Subtle gradient */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-60 transition-opacity duration-500`} />
+          {/* Top shimmer */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent group-hover:via-foreground/25 transition-all" />
+          {/* Animated dot */}
+          <motion.div
+            className={`absolute top-3 right-3 w-2 h-2 rounded-full ${colors.dot}`}
+            animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+          />
+
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <motion.span
+                className="text-3xl lg:text-4xl"
+                animate={isHovered ? { scale: [1, 1.15, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                {game.emoji}
+              </motion.span>
+              <span className={`text-[10px] font-bold ${colors.badge} px-2.5 py-1 rounded-full uppercase tracking-wider`}>
+                {game.stats}
+              </span>
+            </div>
+            <h2 className="font-display font-black text-base lg:text-lg text-foreground mb-1">
+              {game.title}
+            </h2>
+            <p className="text-muted-foreground text-[11px] sm:text-xs leading-relaxed mb-3 line-clamp-2">
+              {game.description}
+            </p>
+            <div className={`flex items-center gap-1.5 ${colors.accent} font-display font-bold text-sm`}>
+              <span>Play</span>
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
+
+// Mobile compact card
+const MobileGameCard = ({ game, index }: { game: typeof games[0]; index: number }) => {
+  const colors = colorMap[game.color];
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, delay: 0.25 + index * 0.06, type: "spring" }}
+    >
+      <Link to={game.path} className="block h-full">
+        <div className={`group relative bg-card/50 backdrop-blur-sm border ${colors.border} rounded-xl p-3.5 overflow-hidden transition-all duration-300 active:scale-[0.96] h-full`}>
+          <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-30`} />
+          <motion.div
+            className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${colors.dot}`}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+          />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xl">{game.emoji}</span>
+              <span className={`text-[8px] font-bold ${colors.badge} px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                {game.stats}
+              </span>
+            </div>
+            <h3 className="font-display font-black text-[13px] text-foreground mb-0.5 leading-tight">
+              {game.title}
+            </h3>
+            <p className="text-muted-foreground text-[10px] leading-snug line-clamp-2 mb-2">
+              {game.description}
+            </p>
+            <div className={`flex items-center gap-1 ${colors.accent} font-display font-bold text-[11px]`}>
+              <span>Play</span>
+              <ArrowRight className="h-3 w-3" />
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
 
 const Index = () => {
   const { user } = useAuth();
+  const [heroText, setHeroText] = useState("");
+  const fullText = "¡Vamos a jugar!";
+
+  // Typewriter effect
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      setHeroText(fullText.slice(0, i + 1));
+      i++;
+      if (i >= fullText.length) clearInterval(id);
+    }, 70);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(0,78%,55%,0.08)_0%,transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(40,90%,55%,0.06)_0%,transparent_60%)]" />
-        
-        {/* Grid pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-          }}
-        />
+      <Particles />
 
-        {/* Floating orbs */}
-        <FloatingOrb delay={0} size={120} x="10%" color="hsl(0,78%,55%,0.08)" />
-        <FloatingOrb delay={3} size={80} x="60%" color="hsl(40,90%,55%,0.06)" />
-        <FloatingOrb delay={6} size={100} x="80%" color="hsl(25,95%,55%,0.07)" />
-        <FloatingOrb delay={2} size={60} x="35%" color="hsl(0,78%,55%,0.05)" />
-        <FloatingOrb delay={5} size={90} x="90%" color="hsl(40,90%,55%,0.05)" />
+      {/* Radial glows */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,hsl(var(--primary)/0.12),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_80%_80%,hsl(var(--accent)/0.08),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_10%_70%,hsl(var(--secondary)/0.06),transparent)]" />
+        {/* Noise overlay */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        }} />
       </div>
 
       {/* Top banner */}
-      <div className="bg-gradient-to-r from-primary/90 to-accent/90 px-4 py-2 relative z-10">
+      <motion.div
+        initial={{ y: -40 }}
+        animate={{ y: 0 }}
+        className="bg-gradient-to-r from-primary/90 via-accent/90 to-secondary/90 px-4 py-2 relative z-10"
+      >
         <div className="max-w-5xl mx-auto flex items-center justify-center gap-2">
           <Star className="h-3 w-3 text-primary-foreground fill-primary-foreground" />
           <a
@@ -129,15 +361,17 @@ const Index = () => {
           </a>
           <Star className="h-3 w-3 text-primary-foreground fill-primary-foreground" />
         </div>
-      </div>
+      </motion.div>
 
       {/* Header */}
-      <header className="border-b border-border/15 px-4 sm:px-6 py-3 relative z-10 backdrop-blur-xl bg-background/60">
+      <header className="border-b border-border/10 px-4 sm:px-6 py-3 relative z-10 backdrop-blur-2xl bg-background/40">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <Flame className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
-              <div className="absolute inset-0 bg-primary/25 blur-lg rounded-full" />
+              <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
+                <Flame className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
+              </motion.div>
+              <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full group-hover:bg-primary/50 transition-colors" />
             </div>
             <span className="font-display font-black text-lg sm:text-xl text-foreground">
               Jugar
@@ -204,170 +438,115 @@ const Index = () => {
       </header>
 
       {/* Hero */}
-      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 pt-8 sm:pt-12 pb-10 relative z-10">
+      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 pt-8 sm:pt-14 pb-10 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-8 sm:mb-10"
+          className="text-center mb-8 sm:mb-12"
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: "spring" }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/10 border border-secondary/20 rounded-full mb-4 sm:mb-5"
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-card/60 border border-border/20 rounded-full mb-5 sm:mb-6 backdrop-blur-sm"
           >
-            <Gamepad2 className="h-3.5 w-3.5 text-secondary" />
-            <span className="text-[11px] sm:text-xs font-bold text-secondary">6 game modes • 120+ challenges</span>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <Gamepad2 className="h-3.5 w-3.5 text-secondary" />
+            </motion.div>
+            <span className="text-[11px] sm:text-xs font-bold text-muted-foreground">
+              <span className="text-secondary"><AnimatedNumber value={6} duration={1} /></span> game modes •{" "}
+              <span className="text-primary"><AnimatedNumber value={120} duration={1.5} /></span>+ challenges
+            </span>
           </motion.div>
 
-          <h1 className="font-display font-black text-5xl sm:text-6xl md:text-8xl mb-3 sm:mb-4 leading-[0.9]">
-            <span className="text-gradient-primary">¡Vamos</span>
-            <br />
-            <span className="text-foreground">a jugar!</span>
+          <h1 className="font-display font-black text-5xl sm:text-7xl md:text-[5.5rem] mb-3 sm:mb-4 leading-[0.9] relative">
+            <span className="text-gradient-primary">{heroText.split(" ").slice(0, 1).join(" ")}</span>
+            {heroText.length > 6 && (
+              <>
+                <br />
+                <span className="text-foreground">{heroText.split(" ").slice(1).join(" ")}</span>
+              </>
+            )}
+            <motion.span
+              className="inline-block w-[3px] h-[0.8em] bg-primary ml-1 align-middle"
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.6, repeat: Infinity }}
+            />
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-sm mx-auto mt-3 sm:mt-4 leading-relaxed">
-            Master Spanish through games. Track scores, earn badges, compete with friends.
-          </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md mx-auto mt-3 sm:mt-4 leading-relaxed"
+          >
+            Master Spanish through <span className="text-primary font-semibold">addictive games</span>. Track scores, earn badges, compete with friends.
+          </motion.p>
         </motion.div>
 
-        {/* Game Cards */}
+        {/* Game Cards — Desktop */}
         <div className="w-full max-w-6xl">
-          {/* Mobile: scrollable horizontal cards + stacked list */}
-          {/* Desktop: 3x2 grid */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {games.map((game, i) => (
-              <motion.div
-                key={game.title}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
-              >
-                <Link to={game.path}>
-                  <div
-                    className={`group relative bg-card/50 backdrop-blur-sm border ${game.border} rounded-2xl p-5 lg:p-6 cursor-pointer overflow-hidden transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1.5 hover:${game.glow} h-full`}
-                  >
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${game.gradient} opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500`}
-                    />
-                    {/* Top shimmer line */}
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent group-hover:via-foreground/20 transition-all" />
-
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-3xl lg:text-4xl">{game.emoji}</span>
-                        <span className={`text-[10px] font-bold ${game.badge} px-2.5 py-1 rounded-full`}>
-                          {game.stats}
-                        </span>
-                      </div>
-                      <h2 className="font-display font-black text-lg lg:text-xl text-foreground mb-1">
-                        {game.title}
-                      </h2>
-                      <p className="text-muted-foreground text-xs leading-relaxed mb-3 line-clamp-2">
-                        {game.description}
-                      </p>
-                      <div className="flex items-center gap-1.5 text-primary font-display font-bold text-sm">
-                        <span>Play</span>
-                        <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+          <div className="hidden sm:block space-y-4">
+            {/* Featured card */}
+            <GameCard game={games[0]} index={0} featured />
+            {/* Grid of remaining */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+              {games.slice(1).map((game, i) => (
+                <GameCard key={game.title} game={game} index={i + 1} />
+              ))}
+            </div>
           </div>
 
-          {/* Mobile layout: Featured card + compact list */}
+          {/* Mobile layout */}
           <div className="sm:hidden space-y-3">
-            {/* Featured first game - big card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Link to={games[0].path}>
-                <div
-                  className={`relative bg-gradient-to-br ${games[0].gradient} rounded-2xl p-5 overflow-hidden ${games[0].glow}`}
-                >
-                  <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
-                  <div className="absolute top-0 right-0 text-[80px] leading-none opacity-20 -mt-2 -mr-2">
-                    {games[0].emoji}
-                  </div>
-                  <div className="relative z-10">
-                    <span className={`text-[10px] font-bold ${games[0].badge} px-2.5 py-1 rounded-full`}>
-                      {games[0].stats}
-                    </span>
-                    <h2 className="font-display font-black text-2xl text-foreground mt-3 mb-1">
-                      {games[0].title}
-                    </h2>
-                    <p className="text-muted-foreground text-xs leading-relaxed mb-4">
-                      {games[0].description}
-                    </p>
-                    <div className="flex items-center gap-2 text-primary font-display font-bold text-sm">
-                      <span>Play Now</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-
-            {/* Rest as compact horizontal cards */}
+            <GameCard game={games[0]} index={0} featured />
             <div className="grid grid-cols-2 gap-2.5">
               {games.slice(1).map((game, i) => (
-                <motion.div
-                  key={game.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 + i * 0.06 }}
-                >
-                  <Link to={game.path}>
-                    <div
-                      className={`relative bg-card/60 backdrop-blur-sm border ${game.border} rounded-xl p-3.5 overflow-hidden transition-all duration-300 active:scale-[0.97] h-full`}
-                    >
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-2xl">{game.emoji}</span>
-                          <span className={`text-[8px] font-bold ${game.badge} px-2 py-0.5 rounded-full`}>
-                            {game.stats}
-                          </span>
-                        </div>
-                        <h3 className="font-display font-black text-sm text-foreground mb-0.5 leading-tight">
-                          {game.title}
-                        </h3>
-                        <p className="text-muted-foreground text-[10px] leading-snug line-clamp-2 mb-2">
-                          {game.description}
-                        </p>
-                        <div className="flex items-center gap-1 text-primary font-display font-bold text-[11px]">
-                          <span>Play</span>
-                          <ArrowRight className="h-3 w-3" />
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
+                <MobileGameCard key={game.title} game={game} index={i} />
               ))}
             </div>
           </div>
         </div>
 
+        {/* Stats bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="flex items-center gap-6 sm:gap-10 mt-8 sm:mt-12 px-6 py-3 bg-card/30 backdrop-blur-sm border border-border/10 rounded-2xl"
+        >
+          {[
+            { label: "Games", value: "6", color: "text-primary" },
+            { label: "Words", value: "200+", color: "text-secondary" },
+            { label: "Players", value: "∞", color: "text-accent" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className={`font-display font-black text-lg sm:text-xl ${stat.color}`}>{stat.value}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+
         {/* Bottom actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="flex flex-wrap justify-center gap-2.5 sm:gap-3 mt-8 sm:mt-10"
+          transition={{ delay: 0.9 }}
+          className="flex flex-wrap justify-center gap-2.5 sm:gap-3 mt-6 sm:mt-8"
         >
           <Link
             to="/leaderboard"
-            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/50 backdrop-blur-sm border border-border/30 rounded-xl text-muted-foreground hover:text-secondary hover:border-secondary/30 transition-all font-display font-bold text-xs sm:text-sm"
+            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-border/20 rounded-xl text-muted-foreground hover:text-secondary hover:border-secondary/30 transition-all font-display font-bold text-xs sm:text-sm"
           >
             <Trophy className="h-4 w-4" />
             Leaderboard
           </Link>
           <Link
             to="/classroom"
-            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/50 backdrop-blur-sm border border-border/30 rounded-xl text-muted-foreground hover:text-accent hover:border-accent/30 transition-all font-display font-bold text-xs sm:text-sm"
+            className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-card/40 backdrop-blur-sm border border-border/20 rounded-xl text-muted-foreground hover:text-accent hover:border-accent/30 transition-all font-display font-bold text-xs sm:text-sm"
           >
             <GraduationCap className="h-4 w-4" />
             Create Class
@@ -378,7 +557,7 @@ const Index = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 1.1 }}
             className="mt-5 sm:mt-6 text-xs sm:text-sm text-muted-foreground text-center"
           >
             <Link to="/auth" className="text-primary hover:underline font-medium">
