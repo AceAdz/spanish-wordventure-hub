@@ -85,10 +85,12 @@ export default function Profile() {
     const { data: userBadges } = await supabase.from("user_badges").select("badge_id, unlocked_at").eq("user_id", user!.id);
     const ubMap = new Map(userBadges?.map((ub) => [ub.badge_id, ub.unlocked_at]) ?? []);
     setBadges(
-      (allBadges ?? []).map((b) => ({
-        id: b.id, name: b.name, description: b.description, icon: b.icon,
-        unlocked: ubMap.has(b.id), unlocked_at: ubMap.get(b.id) ?? undefined,
-      }))
+      (allBadges ?? [])
+        .filter((b) => b.requirement_type !== "admin") // Admin badge is secret
+        .map((b) => ({
+          id: b.id, name: b.name, description: b.description, icon: b.icon,
+          unlocked: ubMap.has(b.id), unlocked_at: ubMap.get(b.id) ?? undefined,
+        }))
     );
     setLoading(false);
   }
