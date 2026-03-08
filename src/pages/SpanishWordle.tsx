@@ -29,6 +29,7 @@ const KEYBOARD_ROWS = [
 ];
 
 const FIVE_LETTER_WORDS = SPANISH_WORDS.filter((w) => w.word.length === WORD_LENGTH);
+const VALID_WORDS_SET = new Set(FIVE_LETTER_WORDS.map((w) => w.word.toUpperCase()));
 
 function getRandomWord() {
   return FIVE_LETTER_WORDS[Math.floor(Math.random() * FIVE_LETTER_WORDS.length)];
@@ -132,6 +133,7 @@ export default function SpanishWordle() {
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [bounceRow, setBounceRow] = useState(-1);
+  const [invalidWord, setInvalidWord] = useState(false);
   const { saveScore } = useGameScore();
   const savedRef = useRef(false);
 
@@ -147,6 +149,13 @@ export default function SpanishWordle() {
     if (currentGuess.length !== WORD_LENGTH || gameOver) return;
 
     const guess = currentGuess.toUpperCase();
+
+    if (!VALID_WORDS_SET.has(guess)) {
+      setShakeRow(true);
+      setInvalidWord(true);
+      setTimeout(() => { setShakeRow(false); setInvalidWord(false); }, 1500);
+      return;
+    }
     const states = evaluateGuess(guess, targetWord.word);
 
     const newTiles: TileData[] = guess.split("").map((letter, i) => ({
@@ -335,6 +344,20 @@ export default function SpanishWordle() {
             <span className="text-muted-foreground">Not in word</span>
           </div>
         </div>
+
+        {/* Invalid word toast */}
+        <AnimatePresence>
+          {invalidWord && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-3 px-4 py-2 bg-destructive/20 border border-destructive/30 rounded-lg text-destructive text-sm font-display font-bold"
+            >
+              Not in word list!
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Grid */}
         <div className="flex flex-col gap-1.5 mb-4">
