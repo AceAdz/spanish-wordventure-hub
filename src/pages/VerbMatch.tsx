@@ -109,41 +109,26 @@ function LevelSelect({ unlockedLevel, totalXP, onSelect }: { unlockedLevel: numb
           <p className="text-muted-foreground text-sm">Get 70%+ accuracy to unlock the next level</p>
         </motion.div>
 
-        {/* Level path - connected dots */}
-        <div className="w-full space-y-3 relative">
-          {/* Connection line */}
-          <div className="absolute left-[29px] top-6 bottom-6 w-[3px] bg-border/30 rounded-full" />
-          <div
-            className="absolute left-[29px] top-6 w-[3px] bg-gradient-to-b from-success to-primary rounded-full transition-all duration-500"
-            style={{ height: `${Math.min(((unlockedLevel - 1) / (LEVELS.length - 1)) * 100, 100)}%` }}
-          />
-
+        <div className="w-full space-y-3">
           {LEVELS.map((level, i) => {
             const locked = level.id > unlockedLevel;
             const completed = level.id < unlockedLevel;
             return (
               <motion.button
                 key={level.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
                 onClick={() => !locked && onSelect(level)}
                 disabled={locked}
-                className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left relative ${
+                className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
                   locked
                     ? "border-border/20 bg-muted/10 opacity-40 cursor-not-allowed"
                     : completed
                     ? `${level.border} ${level.bg} cursor-pointer hover:scale-[1.02]`
-                    : `border-border/50 bg-card/50 cursor-pointer hover:${level.border} hover:${level.bg} hover:scale-[1.02]`
+                    : `border-border/50 bg-card/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 hover:scale-[1.02]`
                 }`}
               >
-                {/* Node dot */}
-                <div className={`relative z-10 w-[18px] h-[18px] rounded-full border-3 ${
-                  completed ? `bg-success border-success` : locked ? "bg-muted border-border" : `bg-card border-primary`
-                } flex items-center justify-center`}>
-                  {completed && <CheckCircle className="h-3 w-3 text-success-foreground" />}
-                </div>
-
                 <span className="text-3xl">{locked ? "🔒" : level.icon}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
