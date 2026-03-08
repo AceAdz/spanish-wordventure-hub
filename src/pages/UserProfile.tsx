@@ -19,7 +19,7 @@ export default function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followsMe, setFollowsMe] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roles, setRoles] = useState<string[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [friendCount, setFriendCount] = useState(0);
@@ -53,8 +53,8 @@ export default function UserProfile() {
   }
 
   async function fetchAdminStatus() {
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId!).eq("role", "admin").maybeSingle();
-    setIsAdmin(!!data);
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId!);
+    setRoles((data ?? []).map(r => r.role));
   }
 
   async function fetchSocial() {
@@ -155,7 +155,12 @@ export default function UserProfile() {
             <h2 className="font-display font-bold text-2xl text-foreground">
               {profile.display_name || "Player"}
             </h2>
-            {isAdmin && (
+            {roles.includes("owner") && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-secondary/20 border border-secondary/30 rounded-full text-[10px] font-bold text-secondary uppercase tracking-wider">
+                <Shield className="h-3 w-3" /> Owner
+              </span>
+            )}
+            {roles.includes("admin") && !roles.includes("owner") && (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-primary/15 border border-primary/25 rounded-full text-[10px] font-bold text-primary uppercase tracking-wider">
                 <Shield className="h-3 w-3" /> Admin
               </span>
