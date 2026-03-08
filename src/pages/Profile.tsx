@@ -224,7 +224,57 @@ export default function Profile() {
     setClaimingAdmin(false);
   };
 
-  const handleSignOut = async () => { await signOut(); navigate("/"); };
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) { setAvatarError("Please select an image file"); return; }
+    if (file.size > 2 * 1024 * 1024) { setAvatarError("Image must be under 2MB"); return; }
+
+    setUploadingAvatar(true);
+    setAvatarError("");
+
+    try {
+      // Convert to base64 for AI moderation
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1]); // strip data:image/...;base64,
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // AI moderation check
+      const { data: modResult, error: modError } = await supabase.functions.invoke("moderate-avatar", {
+        body: { imageBase64: base64 },
+      });
+
+      if (modError) throw new Error("Moderation check failed");
+      if (!modResult?.safe) {
+        setAvatarError(modResult?.reason || "Image rejected by moderation");
+        setUploadingAvatar(false);
+        return;
+      }
+
+      // Upload to storage
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`; // cache bust
+
+      await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("user_id", user.id);
+      setProfile((p: any) => ({ ...p, avatar_url: avatarUrl }));
+    } catch (err: any) {
+      setAvatarError(err?.message || "Upload failed");
+    }
+    setUploadingAvatar(false);
+  };
+
+
 
   if (authLoading || loading) {
     return (
