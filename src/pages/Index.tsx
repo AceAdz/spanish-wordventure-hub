@@ -195,7 +195,7 @@ const Index = () => {
         </motion.div>
 
         {/* Game Cards - 3 column */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl w-full mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl w-full mb-10">
           {games.map((game, i) => (
             <motion.div
               key={game.title}
