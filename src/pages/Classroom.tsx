@@ -107,8 +107,38 @@ export default function Classroom() {
     fetchClasses();
   }, [fetchClasses]);
 
+  const verifyAdminCode = async () => {
+    if (!user || !adminCode.trim()) return;
+    setLoading(true);
+    setError("");
+
+    const { data } = await supabase
+      .from("teacher_codes")
+      .select("*")
+      .eq("code", adminCode.trim().toUpperCase())
+      .eq("used", false)
+      .single();
+
+    if (!data) {
+      setError("Invalid or already used teacher code.");
+      setLoading(false);
+      return;
+    }
+
+    // Mark code as used
+    await supabase
+      .from("teacher_codes")
+      .update({ used: true, used_by: user.id, used_at: new Date().toISOString() })
+      .eq("id", data.id);
+
+    setAdminVerified(true);
+    setAdminStep(false);
+    setError("");
+    setLoading(false);
+  };
+
   const createClass = async () => {
-    if (!user || !className.trim()) return;
+    if (!user || !className.trim() || !adminVerified) return;
     setLoading(true);
     setError("");
     
@@ -125,6 +155,9 @@ export default function Classroom() {
     } else {
       setClassName("");
       setClassDesc("");
+      setAdminCode("");
+      setAdminVerified(false);
+      setAdminStep(true);
       setShowCreate(false);
       fetchClasses();
     }
