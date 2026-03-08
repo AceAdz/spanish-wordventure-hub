@@ -133,6 +133,7 @@ export default function SpanishWordle() {
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [bounceRow, setBounceRow] = useState(-1);
+  const [invalidWord, setInvalidWord] = useState(false);
   const { saveScore } = useGameScore();
   const savedRef = useRef(false);
 
@@ -148,6 +149,13 @@ export default function SpanishWordle() {
     if (currentGuess.length !== WORD_LENGTH || gameOver) return;
 
     const guess = currentGuess.toUpperCase();
+
+    if (!VALID_WORDS_SET.has(guess)) {
+      setShakeRow(true);
+      setInvalidWord(true);
+      setTimeout(() => { setShakeRow(false); setInvalidWord(false); }, 1500);
+      return;
+    }
     const states = evaluateGuess(guess, targetWord.word);
 
     const newTiles: TileData[] = guess.split("").map((letter, i) => ({
