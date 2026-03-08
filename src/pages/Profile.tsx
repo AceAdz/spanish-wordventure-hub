@@ -380,7 +380,7 @@ export default function Profile() {
                   <Shield className="h-3 w-3" /> Owner
                 </span>
               )}
-              {isAdmin && !isOwner && (
+              {isAdmin && (
                 <span className="flex items-center gap-1 px-2 py-0.5 bg-primary/15 border border-primary/25 rounded-full text-[10px] font-bold text-primary uppercase tracking-wider">
                   <Shield className="h-3 w-3" /> Admin
                 </span>
