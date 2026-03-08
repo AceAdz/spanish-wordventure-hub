@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, LogOut, Trophy, Gamepad2, Flame, Pencil, Check, X,
-  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye,
+  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye, Camera, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,6 +64,10 @@ export default function Profile() {
   const [adminError, setAdminError] = useState("");
   const [adminSuccess, setAdminSuccess] = useState(false);
   const [claimingAdmin, setClaimingAdmin] = useState(false);
+
+  // Avatar upload
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
