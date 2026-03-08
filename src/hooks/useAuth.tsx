@@ -27,6 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Moderate avatar on sign in
+        if (_event === "SIGNED_IN" && session?.access_token) {
+          supabase.functions.invoke("moderate-avatar", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).catch(() => {});
+        }
       }
     );
 
