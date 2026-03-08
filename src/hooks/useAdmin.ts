@@ -7,32 +7,35 @@ export function useAdmin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      setLoading(false);
-      return;
-    }
-    
-    supabase
+  const checkAdmin = useCallback(async () => {
+    if (!user) { setIsAdmin(false); setLoading(false); return; }
+    const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => {
-        setIsAdmin(!!data);
-        setLoading(false);
-      });
+      .maybeSingle();
+    setIsAdmin(!!data);
+    setLoading(false);
   }, [user]);
+
+  useEffect(() => { checkAdmin(); }, [checkAdmin]);
 
   const deleteUserData = useCallback(async (targetUserId: string) => {
     if (!isAdmin) return false;
-    const { error } = await supabase.rpc("admin_delete_user_data", {
-      target_user_id: targetUserId,
-    });
+    const { error } = await supabase.rpc("admin_delete_user_data", { target_user_id: targetUserId });
     return !error;
   }, [isAdmin]);
 
-  return { isAdmin, loading, deleteUserData };
+  const claimAdminCode = useCallback(async (code: string): Promise<boolean> => {
+    if (!user) return false;
+    const { data, error } = await supabase.rpc("claim_admin_code", { code_input: code });
+    if (!error && data) {
+      setIsAdmin(true);
+      return true;
+    }
+    return false;
+  }, [user]);
+
+  return { isAdmin, loading, deleteUserData, claimAdminCode, recheckAdmin: checkAdmin };
 }

@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          used: boolean
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          used?: boolean
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          used?: boolean
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           description: string
@@ -267,6 +294,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      claim_admin_code: { Args: { code_input: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
