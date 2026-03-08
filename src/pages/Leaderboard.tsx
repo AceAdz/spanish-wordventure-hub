@@ -233,7 +233,7 @@ export default function Leaderboard() {
                     {entry.roles?.includes("owner") && (
                       <span className="px-1.5 py-0.5 bg-secondary/20 border border-secondary/30 rounded text-[9px] font-bold text-secondary uppercase tracking-wider">Owner</span>
                     )}
-                    {entry.roles?.includes("admin") && !entry.roles?.includes("owner") && (
+                    {entry.roles?.includes("admin") && (
                       <span className="px-1.5 py-0.5 bg-primary/15 border border-primary/25 rounded text-[9px] font-bold text-primary uppercase tracking-wider">Admin</span>
                     )}
                     {entry.user_id === user?.id && <span className="text-primary text-[10px]">(you)</span>}
