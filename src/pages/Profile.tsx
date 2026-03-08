@@ -37,7 +37,7 @@ type SearchResult = {
 
 export default function Profile() {
   const { user, signOut, loading: authLoading } = useAuth();
-  const { isAdmin, claimAdminCode } = useAdmin();
+  const { isAdmin, isOwner, claimAdminCode } = useAdmin();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -375,7 +375,12 @@ export default function Profile() {
               <h2 className="font-display font-bold text-2xl text-foreground">
                 {profile?.display_name || "Player"}
               </h2>
-              {isAdmin && (
+              {isOwner && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-secondary/20 border border-secondary/30 rounded-full text-[10px] font-bold text-secondary uppercase tracking-wider">
+                  <Shield className="h-3 w-3" /> Owner
+                </span>
+              )}
+              {isAdmin && !isOwner && (
                 <span className="flex items-center gap-1 px-2 py-0.5 bg-primary/15 border border-primary/25 rounded-full text-[10px] font-bold text-primary uppercase tracking-wider">
                   <Shield className="h-3 w-3" /> Admin
                 </span>
