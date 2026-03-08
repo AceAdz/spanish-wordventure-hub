@@ -228,24 +228,24 @@ export default function UserProfile() {
         </motion.div>
 
         {/* Badges */}
-        {unlockedBadges.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <h3 className="font-display font-bold text-lg text-foreground mb-3">Badges</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {unlockedBadges.map((badge, i) => (
-                <motion.div key={badge.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-                  className="relative bg-card border border-secondary/50 shadow-md rounded-xl p-4 text-center">
-                  <span className="text-3xl block mb-2">{badge.icon}</span>
-                  <p className="font-display font-bold text-sm text-foreground">{badge.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{badge.description}</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <h3 className="font-display font-bold text-lg text-foreground mb-3">Badges</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {badges.map((badge, i) => (
+              <motion.div key={badge.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
+                className={`relative bg-card border rounded-xl p-4 text-center transition-all ${badge.unlocked ? "border-secondary/50 shadow-md" : "border-border opacity-40 grayscale"}`}>
+                <span className="text-3xl block mb-2">{badge.icon}</span>
+                <p className="font-display font-bold text-sm text-foreground">{badge.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{badge.description}</p>
+                {badge.unlocked && (
                   <div className="absolute -top-1 -right-1 h-5 w-5 bg-secondary rounded-full flex items-center justify-center">
                     <span className="text-xs">✓</span>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </main>
     </div>
   );
