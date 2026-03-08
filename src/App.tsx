@@ -17,6 +17,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Classroom from "./pages/Classroom";
 import NotFound from "./pages/NotFound";
+import CopyProtection from "./components/CopyProtection";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <InstallPrompt />
+        <CopyProtection />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
