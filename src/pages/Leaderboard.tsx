@@ -15,6 +15,7 @@ type LeaderboardEntry = {
   games: number;
   rank: number;
   best_game?: string | null;
+  roles?: string[];
 };
 
 type Tab = "global" | "weekly" | "friends";
@@ -69,12 +70,17 @@ export default function Leaderboard() {
         const { data } = await supabase.from("profiles").select("user_id, display_name, avatar_url, total_score, games_played").order("total_score", { ascending: false }).limit(100);
         const userIds = (data ?? []).map(p => p.user_id);
         let bestGames: Record<string, string> = {};
+        let rolesMap: Record<string, string[]> = {};
         if (userIds.length > 0) {
-          const { data: scores } = await supabase.from("game_scores").select("user_id, game_type, score").in("user_id", userIds).order("score", { ascending: false });
+          const [{ data: scores }, { data: roles }] = await Promise.all([
+            supabase.from("game_scores").select("user_id, game_type, score").in("user_id", userIds).order("score", { ascending: false }),
+            supabase.from("user_roles").select("user_id, role").in("user_id", userIds),
+          ]);
           const seen = new Set<string>();
           (scores ?? []).forEach(s => { if (!seen.has(s.user_id)) { bestGames[s.user_id] = s.game_type; seen.add(s.user_id); } });
+          (roles ?? []).forEach(r => { if (!rolesMap[r.user_id]) rolesMap[r.user_id] = []; rolesMap[r.user_id].push(r.role); });
         }
-        setEntries((data ?? []).map((p, i) => ({ user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, score: p.total_score, games: p.games_played, rank: i + 1, best_game: bestGames[p.user_id] ?? null })));
+        setEntries((data ?? []).map((p, i) => ({ user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, score: p.total_score, games: p.games_played, rank: i + 1, best_game: bestGames[p.user_id] ?? null, roles: rolesMap[p.user_id] ?? [] })));
       } else if (tab === "weekly") {
         const weekStart = new Date();
         weekStart.setDate(weekStart.getDate() - weekStart.getDay());
