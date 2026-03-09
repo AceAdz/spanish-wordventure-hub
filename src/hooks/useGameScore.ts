@@ -6,37 +6,56 @@ export function useGameScore() {
   const { user } = useAuth();
 
   const saveScore = useCallback(
-    async (gameType: "wordle" | "verb_match" | "verb_fishing", score: number, accuracy?: number, bestStreak?: number) => {
+    async (gameType: "wordle" | "verb_match" | "verb_fishing" | "duelo_palabras", score: number, accuracy?: number, bestStreak?: number) => {
       if (!user) return;
 
-      // Insert score
-      await supabase.from("game_scores").insert({
-        user_id: user.id,
-        game_type: gameType,
-        score,
-        accuracy: accuracy ?? null,
-        best_streak: bestStreak ?? null,
-      });
+      try {
+        // Insert score
+        const { error: scoreError } = await supabase.from("game_scores").insert({
+          user_id: user.id,
+          game_type: gameType,
+          score,
+          accuracy: accuracy ?? null,
+          best_streak: bestStreak ?? null,
+        });
 
-      // Update profile totals
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("total_score, games_played")
-        .eq("user_id", user.id)
-        .single();
+        if (scoreError) {
+          console.error("Error inserting score:", scoreError);
+          return;
+        }
 
-      if (profile) {
-        await supabase
+        // Update profile totals
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .update({
-            total_score: profile.total_score + score,
-            games_played: profile.games_played + 1,
-          })
-          .eq("user_id", user.id);
-      }
+          .select("total_score, games_played")
+          .eq("user_id", user.id)
+          .single();
 
-      // Check and award badges
-      await checkBadges(user.id, profile ? profile.total_score + score : score, profile ? profile.games_played + 1 : 1, bestStreak);
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          return;
+        }
+
+        if (profile) {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({
+              total_score: profile.total_score + score,
+              games_played: profile.games_played + 1,
+            })
+            .eq("user_id", user.id);
+
+          if (updateError) {
+            console.error("Error updating profile:", updateError);
+            return;
+          }
+        }
+
+        // Check and award badges
+        await checkBadges(user.id, profile ? profile.total_score + score : score, profile ? profile.games_played + 1 : 1, bestStreak);
+      } catch (error) {
+        console.error("Error in saveScore:", error);
+      }
     },
     [user]
   );
