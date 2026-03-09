@@ -75,7 +75,7 @@ export default function VerbMatch() {
         const newXP = totalXP + earnedXP;
         setTotalXP(newXP);
         localStorage.setItem("verb_match_xp", String(newXP));
-        if (passed && selectedLevel.id >= unlockedLevel && selectedLevel.id < 5) {
+        if (passed && selectedLevel.id >= unlockedLevel && selectedLevel.id < LEVELS.length) {
           const next = selectedLevel.id + 1;
           setUnlockedLevel(next);
           localStorage.setItem("verb_match_level", String(next));

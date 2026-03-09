@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, LogOut, Trophy, Gamepad2, Flame, Pencil, Check, X,
-  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye,
+  UserPlus, Users, Search, UserMinus, Shield, Heart, Eye, CalendarDays,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useStreak } from "@/hooks/useStreak";
 import { validateUsername } from "@/lib/profanityFilter";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
