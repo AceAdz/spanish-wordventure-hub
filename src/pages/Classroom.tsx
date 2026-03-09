@@ -398,7 +398,7 @@ export default function Classroom() {
               <div className="p-4 bg-accent/5 border border-accent/15 rounded-xl">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   To create a class, you need a <span className="text-accent font-bold">teacher code</span>. 
-                  Email <a href="mailto:itxwadz@gmail.com" className="text-primary font-bold hover:underline">aceadxm at itxwadz@gmail.com</a> to 
+                  Email aceadxm at <a href="mailto:itxwadz@gmail.com" className="text-primary font-bold hover:underline">itxwadz@gmail.com</a> to 
                   request a code. He will provide you with a teacher code to set up your class.
                 </p>
               </div>
