@@ -39,6 +39,7 @@ type SearchResult = {
 export default function Profile() {
   const { user, signOut, loading: authLoading } = useAuth();
   const { isAdmin, isOwner, claimAdminCode } = useAdmin();
+  const { currentStreak, bestStreak: bestStreakDays } = useStreak();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
