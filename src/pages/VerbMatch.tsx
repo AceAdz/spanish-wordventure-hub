@@ -30,6 +30,11 @@ const LEVELS = [
   { id: 3, name: "Advanced", desc: "Preterite regular", color: "text-secondary", bg: "bg-secondary/10", border: "border-secondary/30", glow: "glow-warning", maxDiff: 3, rounds: 14, icon: "⚡", xpReq: 150 },
   { id: 4, name: "Expert", desc: "Preterite irregular", color: "text-primary", bg: "bg-primary/10", border: "border-primary/30", glow: "glow-primary", maxDiff: 4, rounds: 16, icon: "💎", xpReq: 300 },
   { id: 5, name: "Master", desc: "Subjunctive & imperfect", color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/30", glow: "glow-primary", maxDiff: 5, rounds: 18, icon: "👑", xpReq: 500 },
+  { id: 6, name: "Future Seer", desc: "Future tense", color: "text-primary", bg: "bg-primary/10", border: "border-primary/30", glow: "glow-primary", maxDiff: 6, rounds: 16, icon: "🔮", xpReq: 750 },
+  { id: 7, name: "Conditional", desc: "Conditional tense", color: "text-accent", bg: "bg-accent/10", border: "border-accent/30", glow: "glow-warning", maxDiff: 7, rounds: 16, icon: "🌀", xpReq: 1000 },
+  { id: 8, name: "Perfect", desc: "Present perfect tense", color: "text-secondary", bg: "bg-secondary/10", border: "border-secondary/30", glow: "glow-warning", maxDiff: 8, rounds: 18, icon: "✨", xpReq: 1300 },
+  { id: 9, name: "Dreamer", desc: "Imperfect subjunctive", color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/30", glow: "glow-primary", maxDiff: 9, rounds: 18, icon: "🌙", xpReq: 1600 },
+  { id: 10, name: "Commander", desc: "Imperative commands", color: "text-success", bg: "bg-success/10", border: "border-success/30", glow: "glow-success", maxDiff: 10, rounds: 20, icon: "⚔️", xpReq: 2000 },
 ];
 
 // XP particle burst
@@ -70,7 +75,7 @@ export default function VerbMatch() {
         const newXP = totalXP + earnedXP;
         setTotalXP(newXP);
         localStorage.setItem("verb_match_xp", String(newXP));
-        if (passed && selectedLevel.id >= unlockedLevel && selectedLevel.id < 5) {
+        if (passed && selectedLevel.id >= unlockedLevel && selectedLevel.id < LEVELS.length) {
           const next = selectedLevel.id + 1;
           setUnlockedLevel(next);
           localStorage.setItem("verb_match_level", String(next));

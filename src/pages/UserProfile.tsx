@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Gamepad2, Heart, Users, Eye, UserPlus, UserMinus, Shield, Flame } from "lucide-react";
+import { ArrowLeft, Trophy, Gamepad2, Heart, Users, Eye, UserPlus, UserMinus, Shield, Flame, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -231,6 +231,34 @@ export default function UserProfile() {
             </div>
           </div>
         </motion.div>
+
+        {/* Daily Streak */}
+        {(profile.current_streak > 0 || profile.best_streak_days > 0) && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+            <h3 className="font-display font-bold text-lg text-foreground mb-3 flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-accent" /> Daily Streak
+            </h3>
+            <div className="bg-card border border-border rounded-2xl p-5">
+              <div className="flex items-center justify-around">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Flame className="h-6 w-6 text-accent" />
+                    <span className="font-display font-black text-3xl text-foreground">{profile.current_streak ?? 0}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Current Streak</p>
+                </div>
+                <div className="h-12 w-px bg-border" />
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Trophy className="h-6 w-6 text-secondary" />
+                    <span className="font-display font-black text-3xl text-foreground">{profile.best_streak_days ?? 0}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Best Streak</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Badges */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
