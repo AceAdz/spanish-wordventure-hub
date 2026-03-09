@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Gamepad2, Heart, Users, Eye, UserPlus, UserMinus, Shield, Flame } from "lucide-react";
+import { ArrowLeft, Trophy, Gamepad2, Heart, Users, Eye, UserPlus, UserMinus, Shield, Flame, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
