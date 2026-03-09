@@ -498,6 +498,35 @@ export default function Profile() {
           )}
         </motion.div>
 
+        {/* Daily Streak */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <h3 className="font-display font-bold text-lg text-foreground mb-3 flex items-center gap-2">
+            <CalendarDays className="h-5 w-5 text-accent" /> Daily Streak
+          </h3>
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="flex items-center justify-around">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <Flame className="h-6 w-6 text-accent" />
+                  <span className="font-display font-black text-3xl text-foreground">{currentStreak}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Current Streak</p>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <Trophy className="h-6 w-6 text-secondary" />
+                  <span className="font-display font-black text-3xl text-foreground">{bestStreakDays}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Best Streak</p>
+              </div>
+            </div>
+            <p className="text-center text-[11px] text-muted-foreground mt-3">
+              Log in every day to keep your streak going! 🔥
+            </p>
+          </div>
+        </motion.div>
+
         {/* Badges */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <h3 className="font-display font-bold text-lg text-foreground mb-3">Badges</h3>
