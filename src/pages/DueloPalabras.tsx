@@ -229,7 +229,7 @@ const DueloPalabras = () => {
   // ── Save score ──
   useEffect(() => {
     if (phase === "gameover" && score > 0) {
-      saveScore("verb_match", score, undefined, bestStreak);
+      saveScore("duelo_palabras", score, undefined, bestStreak);
     }
   }, [phase, score, bestStreak, saveScore]);
 
