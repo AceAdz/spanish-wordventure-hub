@@ -65,7 +65,7 @@ export interface VerbChallenge {
   tense: string;
   pronoun: string;
   answer: string;
-  difficulty: 1 | 2 | 3 | 4 | 5;
+  difficulty: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 }
 
 // Difficulty 1: Present tense regular verbs
