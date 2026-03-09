@@ -181,30 +181,39 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          best_streak_days: number
           created_at: string
+          current_streak: number
           display_name: string | null
           games_played: number
           id: string
+          last_login_date: string | null
           total_score: number
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          best_streak_days?: number
           created_at?: string
+          current_streak?: number
           display_name?: string | null
           games_played?: number
           id?: string
+          last_login_date?: string | null
           total_score?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          best_streak_days?: number
           created_at?: string
+          current_streak?: number
           display_name?: string | null
           games_played?: number
           id?: string
+          last_login_date?: string | null
           total_score?: number
           updated_at?: string
           user_id?: string
