@@ -124,6 +124,79 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_word_sets: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          name: string
+          word_type: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          name: string
+          word_type?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          word_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_word_sets_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_words: {
+        Row: {
+          conjugated_form: string | null
+          created_at: string
+          english: string
+          id: string
+          spanish: string
+          tense: string | null
+          verb_infinitive: string | null
+          word_set_id: string
+        }
+        Insert: {
+          conjugated_form?: string | null
+          created_at?: string
+          english: string
+          id?: string
+          spanish: string
+          tense?: string | null
+          verb_infinitive?: string | null
+          word_set_id: string
+        }
+        Update: {
+          conjugated_form?: string | null
+          created_at?: string
+          english?: string
+          id?: string
+          spanish?: string
+          tense?: string | null
+          verb_infinitive?: string | null
+          word_set_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_words_word_set_id_fkey"
+            columns: ["word_set_id"]
+            isOneToOne: false
+            referencedRelation: "custom_word_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           created_at: string
