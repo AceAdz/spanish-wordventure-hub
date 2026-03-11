@@ -401,7 +401,7 @@ const Index = () => {
             rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground transition-colors"
           >
-            <span className="text-primary font-bold">@aceadxm</span>
+            <span>made by </span><span className="text-primary font-bold">@aceadxm</span>
           </a>
 
           <div className="flex items-center gap-1 sm:gap-2">
