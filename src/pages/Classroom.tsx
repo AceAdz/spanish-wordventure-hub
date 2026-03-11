@@ -250,55 +250,219 @@ export default function Classroom() {
           </button>
         </div>
 
-        {/* My Classes */}
+        {/* My Classes (Teacher) - with inline management */}
         {myClasses.length > 0 && (
           <div className="mb-6">
             <h2 className="font-display font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">My Classes (Teacher)</h2>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {myClasses.map((cls) => (
-                <motion.button key={cls.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  onClick={() => openClass(cls)}
-                  className="w-full flex items-center gap-4 p-4 bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl text-left hover:border-accent/40 hover:bg-accent/5 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-                    <GraduationCap className="h-5 w-5 text-accent" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-bold text-foreground truncate">{cls.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{cls.code}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" />{memberCount[cls.id] || 0} students</span>
+                <div key={cls.id} className="bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden">
+                  {/* Class header - click to expand */}
+                  <button
+                    onClick={() => selectedClass?.id === cls.id ? setSelectedClass(null) : openClass(cls)}
+                    className="w-full flex items-center gap-4 p-4 text-left hover:bg-accent/5 transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                      <GraduationCap className="h-5 w-5 text-accent" />
                     </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </motion.button>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display font-bold text-foreground truncate">{cls.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{cls.code}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Users className="h-3 w-3" />{memberCount[cls.id] || 0} students</span>
+                      </div>
+                    </div>
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${selectedClass?.id === cls.id ? "rotate-90" : ""}`} />
+                  </button>
+
+                  {/* Expanded management area */}
+                  <AnimatePresence>
+                    {selectedClass?.id === cls.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-border/30 p-4 space-y-4">
+                          {/* Class code copy */}
+                          <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border/30 rounded-lg">
+                            <Hash className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-display font-bold text-foreground tracking-widest">{cls.code}</span>
+                            <button onClick={() => copyCode(cls.code)}
+                              className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                              {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                              {copied ? "Copied!" : "Copy"}
+                            </button>
+                          </div>
+
+                          {cls.description && (
+                            <p className="text-sm text-muted-foreground">{cls.description}</p>
+                          )}
+
+                          {/* Teacher */}
+                          {teacherProfile && (
+                            <div>
+                              <h3 className="font-display font-bold text-xs text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                                <GraduationCap className="h-3.5 w-3.5 text-accent" /> Teacher
+                              </h3>
+                              <div className="flex items-center gap-3 p-3 bg-accent/10 border border-accent/20 rounded-lg">
+                                <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center">
+                                  <Crown className="h-4 w-4 text-accent" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-display font-bold text-sm text-foreground truncate">{teacherProfile.display_name || "Teacher"}</p>
+                                  <p className="text-xs text-muted-foreground">{teacherProfile.games_played} games • {teacherProfile.total_score} pts</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Students */}
+                          <div>
+                            <h3 className="font-display font-bold text-xs text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                              <Trophy className="h-3.5 w-3.5 text-secondary" /> Student Leaderboard
+                            </h3>
+                            <div className="space-y-2">
+                              {members.map((m, i) => (
+                                <div key={m.user_id}
+                                  className={`flex items-center gap-3 p-3 rounded-lg ${
+                                    i === 0 ? "bg-secondary/10 border border-secondary/20" :
+                                    i === 1 ? "bg-accent/5 border border-accent/10" :
+                                    i === 2 ? "bg-primary/5 border border-primary/10" :
+                                    "bg-muted/20 border border-border/20"
+                                  }`}
+                                >
+                                  <span className={`font-display font-black text-lg w-8 text-center ${
+                                    i === 0 ? "text-secondary" : i === 1 ? "text-accent" : i === 2 ? "text-primary" : "text-muted-foreground"
+                                  }`}>
+                                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-display font-bold text-sm text-foreground truncate">{m.display_name || "Anonymous"}</p>
+                                    <p className="text-xs text-muted-foreground">{m.games_played} games played</p>
+                                  </div>
+                                  <span className="font-display font-bold text-foreground">{m.total_score}</span>
+                                  <button
+                                    onClick={() => removeStudent(cls.id, m.user_id)}
+                                    className="ml-1 text-destructive/50 hover:text-destructive transition-colors"
+                                    title="Remove student"
+                                  >
+                                    <UserMinus className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ))}
+                              {members.length === 0 && (
+                                <p className="text-center text-muted-foreground text-sm py-4">No students yet. Share the code!</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Word Sets */}
+                          <ClassWordSets classId={cls.id} isTeacher={true} />
+
+                          {/* Delete */}
+                          <button onClick={() => deleteClass(cls.id)}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
+                            <Trash2 className="h-4 w-4" /> Delete Class
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Joined Classes */}
+        {/* Joined Classes (Student) */}
         {joinedClasses.length > 0 && (
           <div className="mb-6">
             <h2 className="font-display font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">Joined Classes</h2>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {joinedClasses.map((cls) => (
-                <motion.button key={cls.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  onClick={() => openClass(cls)}
-                  className="w-full flex items-center gap-4 p-4 bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl text-left hover:border-primary/40 hover:bg-primary/5 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-bold text-foreground truncate">{cls.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{cls.code}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" />{memberCount[cls.id] || 0} members</span>
+                <div key={cls.id} className="bg-card/70 backdrop-blur-sm border border-border/40 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => selectedClass?.id === cls.id ? setSelectedClass(null) : openClass(cls)}
+                    className="w-full flex items-center gap-4 p-4 text-left hover:bg-primary/5 transition-all"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-primary" />
                     </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </motion.button>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display font-bold text-foreground truncate">{cls.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{cls.code}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Users className="h-3 w-3" />{memberCount[cls.id] || 0} members</span>
+                      </div>
+                    </div>
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${selectedClass?.id === cls.id ? "rotate-90" : ""}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {selectedClass?.id === cls.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-border/30 p-4 space-y-4">
+                          {/* Teacher */}
+                          {teacherProfile && (
+                            <div className="flex items-center gap-3 p-3 bg-accent/10 border border-accent/20 rounded-lg">
+                              <Crown className="h-4 w-4 text-accent" />
+                              <p className="font-display font-bold text-sm text-foreground">{teacherProfile.display_name || "Teacher"}</p>
+                            </div>
+                          )}
+
+                          {/* Leaderboard */}
+                          <div>
+                            <h3 className="font-display font-bold text-xs text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                              <Trophy className="h-3.5 w-3.5 text-secondary" /> Leaderboard
+                            </h3>
+                            <div className="space-y-2">
+                              {members.map((m, i) => (
+                                <div key={m.user_id}
+                                  className={`flex items-center gap-3 p-3 rounded-lg ${
+                                    i === 0 ? "bg-secondary/10 border border-secondary/20" :
+                                    i === 1 ? "bg-accent/5 border border-accent/10" :
+                                    "bg-muted/20 border border-border/20"
+                                  }`}
+                                >
+                                  <span className={`font-display font-black text-lg w-8 text-center ${
+                                    i === 0 ? "text-secondary" : i === 1 ? "text-accent" : "text-muted-foreground"
+                                  }`}>
+                                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-display font-bold text-sm text-foreground truncate">{m.display_name || "Anonymous"}</p>
+                                    <p className="text-xs text-muted-foreground">{m.games_played} games</p>
+                                  </div>
+                                  <span className="font-display font-bold text-foreground">{m.total_score}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Game Launcher */}
+                          <ClassGameLauncher classId={cls.id} />
+
+                          {/* Leave */}
+                          <button onClick={() => leaveClass(cls.id)}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
+                            <DoorOpen className="h-4 w-4" /> Leave Class
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ))}
             </div>
           </div>
