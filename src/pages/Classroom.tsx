@@ -400,19 +400,30 @@ export default function Classroom() {
         </DialogContent>
       </Dialog>
 
-      {/* Class Detail Dialog */}
-      <Dialog open={!!selectedClass} onOpenChange={() => setSelectedClass(null)}>
-        <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-lg border-border/50 max-h-[85vh] overflow-y-auto">
-          {selectedClass && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="font-display text-xl flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-accent" />
-                  {selectedClass.name}
-                </DialogTitle>
-                <DialogDescription>{selectedClass.description || "Class leaderboard"}</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 pt-2">
+      {/* Class Detail View */}
+      <AnimatePresence>
+        {selectedClass && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background flex flex-col"
+          >
+            <header className="border-b border-border/20 px-4 py-3 backdrop-blur-sm bg-background/80">
+              <div className="max-w-2xl mx-auto flex items-center justify-between">
+                <button onClick={() => setSelectedClass(null)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                  <ArrowLeft className="h-5 w-5" /><span className="text-sm">Back</span>
+                </button>
+                <h1 className="font-display font-bold text-lg text-foreground flex items-center gap-2 truncate max-w-[200px]">
+                  <GraduationCap className="h-5 w-5 text-accent shrink-0" />
+                  <span className="truncate">{selectedClass.name}</span>
+                </h1>
+                <div className="w-16" />
+              </div>
+            </header>
+
+            <main className="flex-1 overflow-y-auto px-4 py-6 max-w-2xl mx-auto w-full">
+              <div className="space-y-6">
                 {/* Class code */}
                 <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border/30 rounded-lg">
                   <Hash className="h-4 w-4 text-muted-foreground" />
@@ -423,6 +434,10 @@ export default function Classroom() {
                     {copied ? "Copied!" : "Copy"}
                   </button>
                 </div>
+
+                {selectedClass.description && (
+                  <p className="text-sm text-muted-foreground">{selectedClass.description}</p>
+                )}
 
                 {/* Teacher Section */}
                 {teacherProfile && (
@@ -477,7 +492,7 @@ export default function Classroom() {
                         <span className="font-display font-bold text-foreground">{m.total_score}</span>
                         {isTeacher && (
                           <button
-                            onClick={(e) => { e.stopPropagation(); removeStudent(selectedClass.id, m.user_id); }}
+                            onClick={() => removeStudent(selectedClass.id, m.user_id)}
                             className="ml-1 text-destructive/50 hover:text-destructive transition-colors"
                             title="Remove student"
                           >
@@ -492,7 +507,7 @@ export default function Classroom() {
                   </div>
                 </div>
 
-                {/* Word Sets */}
+                {/* Word Sets - teachers manage, students view */}
                 <ClassWordSets classId={selectedClass.id} isTeacher={isTeacher} />
 
                 {/* Game Launcher (students only) */}
@@ -501,22 +516,24 @@ export default function Classroom() {
                 )}
 
                 {/* Actions */}
-                {isTeacher ? (
-                  <button onClick={() => deleteClass(selectedClass.id)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
-                    <Trash2 className="h-4 w-4" /> Delete Class
-                  </button>
-                ) : (
-                  <button onClick={() => leaveClass(selectedClass.id)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
-                    <DoorOpen className="h-4 w-4" /> Leave Class
-                  </button>
-                )}
+                <div className="pt-4 border-t border-border/20">
+                  {isTeacher ? (
+                    <button onClick={() => deleteClass(selectedClass.id)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
+                      <Trash2 className="h-4 w-4" /> Delete Class
+                    </button>
+                  ) : (
+                    <button onClick={() => leaveClass(selectedClass.id)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 text-destructive hover:bg-destructive/10 rounded-lg transition-colors text-sm font-display font-bold">
+                      <DoorOpen className="h-4 w-4" /> Leave Class
+                    </button>
+                  )}
+                </div>
               </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            </main>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
