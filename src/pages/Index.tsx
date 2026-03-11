@@ -401,28 +401,14 @@ const Index = () => {
             <span className="font-display font-black text-base sm:text-xl text-foreground">Jugar</span>
           </Link>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="hidden sm:flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground transition-colors">
-                <span>made by </span>
-                <span className="text-primary font-bold">@aceadxm</span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-[160px]">
-              <DropdownMenuItem asChild>
-                <a href="https://www.tiktok.com/@aceadxm" target="_blank" rel="noopener noreferrer" className="cursor-pointer">TikTok</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href="https://www.instagram.com/adxm.fr" target="_blank" rel="noopener noreferrer" className="cursor-pointer">Instagram</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href="https://x.com/AceAdz_" target="_blank" rel="noopener noreferrer" className="cursor-pointer">X (Twitter)</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href="https://github.com/AceAdz" target="_blank" rel="noopener noreferrer" className="cursor-pointer">GitHub</a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <a
+            href="https://github.com/AceAdz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground transition-colors"
+          >
+            <span className="text-primary font-bold">@aceadxm</span>
+          </a>
 
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
